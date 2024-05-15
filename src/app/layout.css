@@ -1,0 +1,37 @@
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 56px; /* adjust based on header height */
+    left: 0;
+    z-index: 1;
+    padding-top: 20px;
+}
+
+.content {
+    margin-left: 250px;
+    padding: 20px;
+    margin-top: 56px; /* adjust based on header height */
+}
+
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container-fluid {
+    max-width: 100%;
+}
+
+.header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-logo {
+    width: 150px;
+    height: 150px;
+}

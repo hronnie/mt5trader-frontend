@@ -1,12 +1,24 @@
-import { Button, Col, Container, Row } from "react-bootstrap";
+import React from 'react';
 
-export default function Home() {
-    return     <Container>
-        <Row>
-            <Col>
-                <h1 className="text-danger fw-bold">Home</h1>
-                <Button variant="primary" className="mt-5 ">Click Me</Button>
-            </Col>
-        </Row>
-    </Container>
-}
+const Home: React.FC = () => {
+    return (
+        <div>
+            <h1>Welcome to My Next.js App</h1>
+            <p>This is a simple Next.js app with a sidebar layout.</p>
+            <div className="alert alert-primary" role="alert">
+                A simple primary alert—check it out!
+            </div>
+            <div className="alert alert-secondary" role="alert">
+                A simple secondary alert—check it out!
+            </div>
+            <div className="alert alert-success" role="alert">
+                A simple success alert—check it out!
+            </div>
+            <div className="alert alert-danger" role="alert">
+                A simple danger alert—check it out!
+            </div>
+        </div>
+    );
+};
+
+export default Home;
