@@ -8,13 +8,13 @@ const Header: React.FC = () => {
                 <div className="d-flex justify-content-between align-items-center">
                     <h1 className="h3">MetaTrader 5 Trader Dashboard</h1>
                     <div className="user-info d-flex align-items-center">
-                        <img
-                            src="/path-to-user-avatar.jpg"
-                            alt="User Avatar"
-                            className="rounded-circle me-2"
-                            style={{ width: '40px', height: '40px' }}
-                        />
-                        <span>John Doe</span>
+                        {/*<img*/}
+                        {/*    src="/path-to-user-avatar.jpg"*/}
+                        {/*    alt="User Avatar"*/}
+                        {/*    className="rounded-circle me-2"*/}
+                        {/*    style={{ width: '40px', height: '40px' }}*/}
+                        {/*/>*/}
+                        <span>Smart trade</span>
                     </div>
                 </div>
             </div>
