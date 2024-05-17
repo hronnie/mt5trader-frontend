@@ -14,7 +14,7 @@ const Sidebar: React.FC = () => {
                 </div>
                 <nav className="nav flex-column">
                     <Link className="nav-link text-white" href="/pages/dashboard">
-                        Dashboards
+                        Dashboard
                     </Link>
                     <Link className="nav-link text-white" href="/pages/trade">
                         Trade
