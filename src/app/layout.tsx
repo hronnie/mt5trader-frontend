@@ -12,7 +12,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="en">
         <head>
-            <title>CoreUI PRO Next.js Admin Template</title>
+            <title>MT5 trader</title>
             <Script
                 id="get-color-scheme"
                 strategy="beforeInteractive"

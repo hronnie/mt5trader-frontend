@@ -1,0 +1,8 @@
+/* settings.module.css */
+.settingInput {
+    max-width: 150px;
+}
+
+.saveButton {
+    margin-bottom: 15px;
+}

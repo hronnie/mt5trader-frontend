@@ -3,19 +3,16 @@ import Link from 'next/link'
 import {useDispatch} from 'react-redux'
 import {useTypedSelector} from './../store'
 import {
-    CCloseButton,
+    CCloseButton, CImage,
     CSidebar,
     CSidebarBrand,
     CSidebarFooter,
     CSidebarHeader,
     CSidebarToggler,
 } from '@coreui/react-pro'
-import CIcon from '@coreui/icons-react'
 
 import AppSidebarNav from './AppSidebarNav'
 
-import {logo} from '@/public/brand/logo'
-import {sygnet} from '@/public/brand/sygnet'
 
 // sidebar nav config
 import navigation from '../_nav'
@@ -38,8 +35,8 @@ const AppSidebar = (): JSX.Element => {
         >
             <CSidebarHeader className="border-bottom">
                 <CSidebarBrand as={Link} href="/">
-                    <CIcon customClassName="sidebar-brand-full" icon={logo} height={32}/>
-                    <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32}/>
+                    <CImage src= '/images/main_logo.jpeg' height={75}/>
+                    <span style={{marginLeft: "15px"}}>MT5 Trader</span>
                 </CSidebarBrand>
                 <CCloseButton
                     className="d-lg-none"

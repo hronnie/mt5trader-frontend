@@ -2,25 +2,11 @@ import {useEffect, useRef} from 'react'
 import {useDispatch} from 'react-redux'
 import Link from 'next/link'
 
-import {
-    CContainer,
-    CDropdown,
-    CDropdownItem,
-    CDropdownMenu,
-    CDropdownToggle,
-    CHeader,
-    CHeaderNav,
-    CHeaderToggler,
-    CNavItem,
-    CNavLink,
-    useColorModes,
-} from '@coreui/react-pro'
-import {cilApplicationsSettings, cilContrast, cilMenu, cilMoon, cilSun} from '@coreui/icons'
+import {CContainer, CHeader, CHeaderNav, CHeaderToggler, CNavItem, CNavLink, useColorModes,} from '@coreui/react-pro'
+import {cilMenu} from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
 import {useTypedSelector} from './../store'
-
-import {AppHeaderDropdown, AppHeaderDropdownMssg, AppHeaderDropdownNotif, AppHeaderDropdownTasks,} from './header/'
 
 import {AppBreadcrumb} from '@/components'
 

@@ -1,7 +1,7 @@
 import React, {ElementType} from 'react'
-import {cilDrop, cilGem, cilPuzzle, cilSpeedometer,} from '@coreui/icons'
+import {cilDrop, cilGem, cilSpeedometer,} from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import {CNavGroup, CNavItem, CNavTitle} from '@coreui/react-pro'
+import {CNavItem, CNavTitle} from '@coreui/react-pro'
 
 export type Badge = {
     color: string
