@@ -1,26 +1,57 @@
 {
-  "name": "mt5trader-frontend",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@coreui/coreui-pro-next-js-admin-template",
+  "version": "2.0.0",
+  "description": "CoreUI PRO Next.js Admin Template",
+  "config": {
+    "theme": "default",
+    "zipPrefix": ".zip/coreui-pro-next-js-admin-template-theme"
+  },
+  "bugs": {
+    "url": "https://github.com/coreui/coreui-pro-next-js-admin-template/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:coreui/coreui-pro-next-js-admin-template.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "zip": "git archive -o $npm_package_config_zipPrefix-$npm_package_config_theme-v$npm_package_version.zip -9 HEAD"
   },
   "dependencies": {
-    "bootstrap": "^5.3.3",
-    "next": "14.2.3",
-    "react": "^18",
-    "react-bootstrap": "^2.10.2",
-    "react-dom": "^18"
+    "@coreui/coreui-pro": "^5.0.0",
+    "@coreui/icons": "^3.0.1",
+    "@coreui/icons-react": "^2.2.1",
+    "@coreui/react-chartjs": "^3.0.0",
+    "@coreui/react-pro": "^5.0.0",
+    "@coreui/utils": "^2.0.2",
+    "@fullcalendar/core": "^6.1.11",
+    "@fullcalendar/daygrid": "^6.1.11",
+    "@fullcalendar/interaction": "^6.1.11",
+    "@fullcalendar/react": "^6.1.11",
+    "@fullcalendar/timegrid": "^6.1.11",
+    "@react-google-maps/api": "^2.19.3",
+    "@reduxjs/toolkit": "^2.2.2",
+    "@types/node": "20.11.30",
+    "@types/react": "18.2.73",
+    "@types/react-dom": "18.2.22",
+    "classnames": "^2.5.1",
+    "eslint": "8.57.0",
+    "eslint-config-next": "^14.1.4",
+    "next": "14.1.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-redux": "^9.1.0",
+    "simplebar-react": "^3.2.4",
+    "typescript": "5.4.3"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3",
-    "typescript": "^5"
+    "@babel/preset-react": "^7.24.1",
+    "next-transpile-modules": "^10.0.1",
+    "sass": "^1.72.0"
   }
 }
