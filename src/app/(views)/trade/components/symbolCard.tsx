@@ -3,17 +3,21 @@ import React from "react";
 
 interface SymbolCardProps {
     symbolName: string;
-    bidPrice: number;
-    askPrice: number;
-    currentSpread: number;
+    isSelected: boolean;
+    onSelect: () => void;
 }
 
-const SymbolCard: React.FC<SymbolCardProps> = ({ symbolName, bidPrice, askPrice, currentSpread }) => {
+const SymbolCard: React.FC<SymbolCardProps> = ({ symbolName, isSelected, onSelect }) => {
     return (
-        <CCard style={{ width: '18rem' }}>
+        <CCard
+            style={{
+                width: '18rem',
+                backgroundColor: isSelected ? '#d0e1ff' : 'white' // change background color if selected
+            }}
+            onClick={onSelect}
+        >
             <CCardBody>
                 <CCardTitle>{symbolName}</CCardTitle>
-
                 <CButton color="primary" href="#">
                     Select
                 </CButton>

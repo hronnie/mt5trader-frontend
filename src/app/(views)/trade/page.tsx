@@ -31,6 +31,7 @@ import SymbolCard from "@/app/(views)/trade/components/symbolCard";
 
 const Cards = () => {
     const [formData, setFormData] = useState(null);
+    const [selectedSymbol, setSelectedSymbol] = useState(null);
     const [toast, addToast] = useState(0);
     const toaster = useRef();
     const settingSuccessToast = (
@@ -45,6 +46,10 @@ const Cards = () => {
             setFormData(JSON.parse(savedFormData));
         }
     }, []);
+
+    const handleSymbolSelect = (symbol) => {
+        setSelectedSymbol(symbol);
+    };
 
     return (
         <CRow>
@@ -62,9 +67,8 @@ const Cards = () => {
                                         <CCol xs={12} sm={6} md={4} lg={3} key={key}>
                                             <SymbolCard
                                                 symbolName={key}
-                                                bidPrice={1.1234}
-                                                askPrice={1.1236}
-                                                currentSpread={0.0002}
+                                                isSelected={selectedSymbol === key}
+                                                onSelect={() => handleSymbolSelect(key)}
                                             />
                                         </CCol>
                                     )
@@ -75,7 +79,7 @@ const Cards = () => {
                                 </CCol>
                             )}
                         </CRow>
-                        <h4 style={{marginTop: "15px"}}>Indicies symbols: </h4>
+                        <h4 style={{marginTop: "15px"}}>Indices symbols: </h4>
                         <CRow>
                             {formData?.indices ? (
                                 Object.keys(formData.indices).map((key) => (
@@ -83,9 +87,8 @@ const Cards = () => {
                                         <CCol xs={12} sm={6} md={4} lg={3} key={key}>
                                             <SymbolCard
                                                 symbolName={key}
-                                                bidPrice={1.1234}
-                                                askPrice={1.1236}
-                                                currentSpread={0.0002}
+                                                isSelected={selectedSymbol === key}
+                                                onSelect={() => handleSymbolSelect(key)}
                                             />
                                         </CCol>
                                     )
@@ -104,9 +107,8 @@ const Cards = () => {
                                         <CCol xs={12} sm={6} md={4} lg={3} key={key}>
                                             <SymbolCard
                                                 symbolName={key}
-                                                bidPrice={1.1234}
-                                                askPrice={1.1236}
-                                                currentSpread={0.0002}
+                                                isSelected={selectedSymbol === key}
+                                                onSelect={() => handleSymbolSelect(key)}
                                             />
                                         </CCol>
                                     )
