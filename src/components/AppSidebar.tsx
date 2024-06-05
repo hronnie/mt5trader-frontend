@@ -35,15 +35,11 @@ const AppSidebar = (): JSX.Element => {
         >
             <CSidebarHeader className="border-bottom">
                 <CSidebarBrand as={Link} href="/">
-                    <CImage src= '/images/main_logo.jpeg' height={75}/>
-                    <span style={{marginLeft: "15px"}}>MT5 Trader</span>
+                    <CImage src='/images/main_logo.jpeg' height={100} width={190}/>
                 </CSidebarBrand>
-                <CCloseButton
-                    className="d-lg-none"
-                    dark
-                    onClick={() => dispatch({type: 'set', sidebarShow: false})}
-                />
+
             </CSidebarHeader>
+                <br/><span style={{marginLeft: "15px"}}>MT5 Trader</span>
             <AppSidebarNav items={navigation}/>
             <CSidebarFooter className="border-top d-none d-lg-flex">
                 <CSidebarToggler
