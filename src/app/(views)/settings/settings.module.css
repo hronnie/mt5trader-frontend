@@ -6,3 +6,8 @@
 .saveButton {
     margin-bottom: 15px;
 }
+
+.error {
+    font-size: 18px;
+    color: red;
+}

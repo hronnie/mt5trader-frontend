@@ -20,39 +20,39 @@ import { SETTINGS_LOCAL_STORAGE } from '@/app/common/constants';
 
 const defaultFormData = {
     forex: {
-        EURUSD: { enabled: true, leverage: 100 },
-        GBPUSD: { enabled: true, leverage: 100 },
-        USDJPY: { enabled: false, leverage: 100 },
-        USDCAD: { enabled: false, leverage: 100 },
-        USDCHF: { enabled: false, leverage: 100 },
-        AUDUSD: { enabled: false, leverage: 100 },
-        GBPJPY: { enabled: false, leverage: 100 },
-        AUDJPY: { enabled: false, leverage: 100 },
-        NZDUSD: { enabled: false, leverage: 100 },
+        EURUSD: { enabled: true, leverage: 100, error: '' },
+        GBPUSD: { enabled: true, leverage: 100, error: '' },
+        USDJPY: { enabled: false, leverage: 100, error: '' },
+        USDCAD: { enabled: false, leverage: 100, error: '' },
+        USDCHF: { enabled: false, leverage: 100, error: '' },
+        AUDUSD: { enabled: false, leverage: 100, error: '' },
+        GBPJPY: { enabled: false, leverage: 100, error: '' },
+        AUDJPY: { enabled: false, leverage: 100, error: '' },
+        NZDUSD: { enabled: false, leverage: 100, error: '' },
     },
     indices: {
-        US30: { enabled: false, leverage: 100 },
-        US100: { enabled: false, leverage: 100 },
-        US500: { enabled: false, leverage: 100 },
-        US2000: { enabled: false, leverage: 100 },
-        GER40: { enabled: false, leverage: 100 },
-        UK100: { enabled: false, leverage: 100 },
-        EU50: { enabled: false, leverage: 100 },
-        JP225: { enabled: false, leverage: 100 },
-        HK50: { enabled: false, leverage: 100 },
-        AUS200: { enabled: false, leverage: 100 },
+        US30: { enabled: false, leverage: 100, error: '' },
+        US100: { enabled: false, leverage: 100, error: '' },
+        US500: { enabled: false, leverage: 100, error: '' },
+        US2000: { enabled: false, leverage: 100, error: '' },
+        GER40: { enabled: false, leverage: 100, error: '' },
+        UK100: { enabled: false, leverage: 100, error: '' },
+        EU50: { enabled: false, leverage: 100, error: '' },
+        JP225: { enabled: false, leverage: 100, error: '' },
+        HK50: { enabled: false, leverage: 100, error: '' },
+        AUS200: { enabled: false, leverage: 100, error: '' },
     },
     commodities: {
-        XAUUSD: { enabled: false, leverage: 100 },
-        XAGUSD: { enabled: false, leverage: 100 },
-        XPDUSD: { enabled: false, leverage: 100 },
-        XPTUSD: { enabled: false, leverage: 100 },
-        USOIL: { enabled: false, leverage: 100 },
-        UKOIL: { enabled: false, leverage: 100 },
-        COCOA: { enabled: false, leverage: 100 },
-        COFFEE: { enabled: false, leverage: 100 },
-        SOYBEAN: { enabled: false, leverage: 100 },
-        WHEAT: { enabled: false, leverage: 100 },
+        XAUUSD: { enabled: false, leverage: 100, error: '' },
+        XAGUSD: { enabled: false, leverage: 100, error: '' },
+        XPDUSD: { enabled: false, leverage: 100, error: '' },
+        XPTUSD: { enabled: false, leverage: 100, error: '' },
+        USOIL: { enabled: false, leverage: 100, error: '' },
+        UKOIL: { enabled: false, leverage: 100, error: '' },
+        COCOA: { enabled: false, leverage: 100, error: '' },
+        COFFEE: { enabled: false, leverage: 100, error: '' },
+        SOYBEAN: { enabled: false, leverage: 100, error: '' },
+        WHEAT: { enabled: false, leverage: 100, error: '' },
     },
     risk: 1,
     spread: 1
@@ -84,24 +84,41 @@ export default function Settings() {
                     ...prevFormData,
                     [category]: value
                 };
-            } else {
-                return {
-                    ...prevFormData,
-                    [category]: {
-                        ...prevFormData[category],
-                        [name]: {
-                            ...prevFormData[category][name],
-                            [field]: value
-                        }
-                    }
-                };
             }
+            const updatedCategory = {
+                ...prevFormData[category],
+                [name]: {
+                    ...prevFormData[category][name],
+                    [field]: value,
+                    error: field === 'enabled' && value && !prevFormData[category][name].leverage ? 'Leverage cannot be empty' : ''
+                }
+            };
+            return {
+                ...prevFormData,
+                [category]: updatedCategory
+            };
         });
     };
 
     const handleSave = () => {
-        localStorage.setItem(SETTINGS_LOCAL_STORAGE, JSON.stringify(formData));
-        addToast(settingSuccessToast);
+        const updatedFormData = { ...formData };
+        Object.keys(updatedFormData).forEach(category => {
+            Object.keys(updatedFormData[category]).forEach(symbol => {
+                if (updatedFormData[category][symbol].enabled && !updatedFormData[category][symbol].leverage) {
+                    updatedFormData[category][symbol].error = 'Leverage cannot be empty';
+                }
+            });
+        });
+        setFormData(updatedFormData);
+
+        const hasErrors = Object.keys(updatedFormData).some(category =>
+            Object.keys(updatedFormData[category]).some(symbol => updatedFormData[category][symbol].error)
+        );
+
+        if (!hasErrors) {
+            localStorage.setItem(SETTINGS_LOCAL_STORAGE, JSON.stringify(formData));
+            addToast(settingSuccessToast);
+        }
     };
 
     return (
@@ -135,13 +152,16 @@ export default function Settings() {
                                                 />
                                             </CCol>
                                             <CCol>
-                                                 <CFormInput
+                                                <CFormInput
                                                     type="number"
                                                     value={formData.forex[key].leverage}
                                                     onChange={handleChange('forex', key)}
                                                     name="leverage"
                                                     className={styles.leverageInput}
                                                 />
+                                                {formData.forex[key].error && (
+                                                    <div className={styles.error}>{formData.forex[key].error}</div>
+                                                )}
                                             </CCol>
                                         </CRow>
                                     </CListGroupItem>
@@ -178,6 +198,9 @@ export default function Settings() {
                                                     name="leverage"
                                                     className={styles.leverageInput}
                                                 />
+                                                {formData.indices[key].error && (
+                                                    <div className={styles.error}>{formData.indices[key].error}</div>
+                                                )}
                                             </CCol>
                                         </CRow>
                                     </CListGroupItem>
@@ -214,6 +237,9 @@ export default function Settings() {
                                                     name="leverage"
                                                     className={styles.leverageInput}
                                                 />
+                                                {formData.commodities[key].error && (
+                                                    <div className={styles.error}>{formData.commodities[key].error}</div>
+                                                )}
                                             </CCol>
                                         </CRow>
                                     </CListGroupItem>
