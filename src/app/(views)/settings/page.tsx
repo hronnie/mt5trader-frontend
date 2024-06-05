@@ -55,7 +55,8 @@ const defaultFormData = {
         WHEAT: { enabled: false, leverage: 100, error: '' },
     },
     risk: 1,
-    spread: 1
+    spread: 1,
+    ratio: 3
 };
 
 export default function Settings() {
@@ -79,7 +80,7 @@ export default function Settings() {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
         const field = event.target.name;
         setFormData((prevFormData) => {
-            if (category === 'risk' || category === 'spread') {
+            if (category === 'risk' || category === 'spread' || category === 'ratio') {
                 return {
                     ...prevFormData,
                     [category]: value
@@ -276,6 +277,20 @@ export default function Settings() {
                             onChange={handleChange('spread', 'spread')}
                         />
                         <CInputGroupText>%</CInputGroupText>
+                    </CInputGroup>
+                </CCardBody>
+            </CCard>
+            <CCard className="mb-4">
+                <CCardHeader>
+                    Ratio
+                </CCardHeader>
+                <CCardBody>
+                    <CInputGroup className={styles.settingInput}>
+                        <CInputGroupText>1:</CInputGroupText>
+                        <CFormInput
+                            value={formData.ratio}
+                            onChange={handleChange('ratio', 'ratio')}
+                        />
                     </CInputGroup>
                 </CCardBody>
             </CCard>

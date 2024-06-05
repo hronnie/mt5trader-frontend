@@ -75,7 +75,7 @@ const Cards = () => {
                                 </CCol>
                             )}
                         </CRow>
-                        <h4>Indicies symbols: </h4>
+                        <h4 style={{marginTop: "15px"}}>Indicies symbols: </h4>
                         <CRow>
                             {formData?.indices ? (
                                 Object.keys(formData.indices).map((key) => (
@@ -96,7 +96,7 @@ const Cards = () => {
                                 </CCol>
                             )}
                         </CRow>
-                        <h4>Commodities symbols: </h4>
+                        <h4 style={{marginTop: "15px"}}>Commodities symbols: </h4>
                         <CRow>
                             {formData?.commodities ? (
                                 Object.keys(formData.commodities).map((key) => (
