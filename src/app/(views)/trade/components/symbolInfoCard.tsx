@@ -7,8 +7,8 @@ interface SymbolCardProps {
 }
 
 interface News {
-    date: string;
-    impact: string;
+    time: string;
+    currency: string;
     description: string
 }
 
@@ -48,12 +48,12 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                         <table className="table w-100">
                             <tbody>
                             <tr>
-                                <td className="text-medium-emphasis">Date:</td>
-                                <td className="font-weight-bold">{news.date}</td>
+                                <td className="text-medium-emphasis">Time:</td>
+                                <td className="font-weight-bold">{news.time}</td>
                             </tr>
                             <tr>
-                                <td className="text-medium-emphasis">Impact:</td>
-                                <td className="font-weight-bold">{news.impact}</td>
+                                <td className="text-medium-emphasis">Currency:</td>
+                                <td className="font-weight-bold">{news.currency}</td>
                             </tr>
                             <tr>
                                 <td className="text-medium-emphasis">Description:</td>
