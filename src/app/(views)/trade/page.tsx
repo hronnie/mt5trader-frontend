@@ -28,6 +28,7 @@ import ReactImg from '@/public/images/react.jpg';
 import React, { useEffect, useRef, useState } from "react";
 import { SETTINGS_LOCAL_STORAGE } from "@/app/common/constants";
 import SymbolCard from "@/app/(views)/trade/components/symbolCard";
+import SymbolInfoCard from "@/app/(views)/trade/components/symbolInfoCard";
 
 const Cards = () => {
     const [formData, setFormData] = useState(null);
@@ -122,16 +123,19 @@ const Cards = () => {
                     </CCardBody>
                 </CCard>
             </CCol>
-            <CCol xs={12}>
-                <CCard className="mb-4">
-                    <CCardHeader>
-                        <strong>Card title</strong>
-                    </CCardHeader>
-                    <CCardBody>
-                        card body
-                    </CCardBody>
-                </CCard>
-            </CCol>
+            {selectedSymbol && <CCol xs={12}>
+                <SymbolInfoCard symbolName={selectedSymbol}/>
+            </CCol>}
+            {/*<CCol xs={12}>*/}
+            {/*    <CCard className="mb-4">*/}
+            {/*        <CCardHeader>*/}
+            {/*            <strong>Card title</strong>*/}
+            {/*        </CCardHeader>*/}
+            {/*        <CCardBody>*/}
+            {/*            card body*/}
+            {/*        </CCardBody>*/}
+            {/*    </CCard>*/}
+            {/*</CCol>*/}
         </CRow>
     );
 };
