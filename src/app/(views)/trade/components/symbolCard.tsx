@@ -12,10 +12,10 @@ const SymbolCard: React.FC<SymbolCardProps> = ({ symbolName, isSelected, onSelec
         <CCard
             style={{
                 width: '18rem',
-                backgroundColor: isSelected ? '#d0e1ff' : 'white', // change background color if selected
-                border: isSelected ? '2px solid #0056b3' : '1px solid #ccc', // deeper blue border if selected
-                cursor: 'pointer', // change cursor to pointer
-                textAlign: 'center' // center align the text
+                backgroundColor: isSelected ? '#d0e1ff' : '#f3f4f7',
+                border: isSelected ? '2px solid #0056b3' : '1px solid #ccc',
+                cursor: 'pointer',
+                textAlign: 'center'
             }}
             onClick={onSelect}
         >
