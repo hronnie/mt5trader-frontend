@@ -1,4 +1,15 @@
-import {CCard, CCardBody, CCardHeader, CCardText, CCardTitle} from "@coreui/react-pro";
+import {
+    CCard,
+    CCardBody,
+    CCardHeader,
+    CCardText,
+    CCardTitle,
+    CTable, CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
+} from "@coreui/react-pro";
 import React, {useEffect, useState} from "react";
 import {getSymbolInfo} from "@/services/newsService";
 
@@ -42,26 +53,63 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
         >
             <CCardHeader>{symbolName} Info</CCardHeader>
             <CCardBody>
-                <CCardTitle>{"primary"} card title</CCardTitle>
+                <CCardTitle>News info</CCardTitle>
                 <CCardText>
-                    {data && data.map((news: News) => (
-                        <table className="table w-100">
-                            <tbody>
-                            <tr>
-                                <td className="text-medium-emphasis">Time:</td>
-                                <td className="font-weight-bold">{news.time}</td>
-                            </tr>
-                            <tr>
-                                <td className="text-medium-emphasis">Currency:</td>
-                                <td className="font-weight-bold">{news.currency}</td>
-                            </tr>
-                            <tr>
-                                <td className="text-medium-emphasis">Description:</td>
-                                <td className="font-weight-bold">{news.description}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    ))}
+                    <CTable align="middle" small>
+                        <CTableHead>
+                            <CTableRow>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Time
+                                </CTableHeaderCell>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Currency
+                                </CTableHeaderCell>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Description
+                                </CTableHeaderCell>
+                            </CTableRow>
+                        </CTableHead>
+
+                        <CTableBody>
+                            {data && data.map((news: News) => (
+                                <CTableRow>
+                                    <CTableDataCell>
+                                        {news.time}
+                                    </CTableDataCell>
+                                    <CTableDataCell>
+                                        {news.currency}
+                                    </CTableDataCell>
+                                    <CTableDataCell>
+                                        {news.description}
+                                    </CTableDataCell>
+                                </CTableRow>
+                            ))}
+                        </CTableBody>
+                    </CTable>
+
+
+
+
+                        {/*<table className="table w-100">*/}
+                        {/*    <tbody>*/}
+                        {/*    {data && data.map((news: News) => (*/}
+                        {/*        <>*/}
+                        {/*    <tr>*/}
+                        {/*        <td className="text-medium-emphasis">Time:</td>*/}
+                        {/*        <td className="font-weight-bold">{news.time}</td>*/}
+                        {/*    </tr>*/}
+                        {/*    <tr>*/}
+                        {/*        <td className="text-medium-emphasis">Currency:</td>*/}
+                        {/*        <td className="font-weight-bold">{news.currency}</td>*/}
+                        {/*    </tr>*/}
+                        {/*    <tr>*/}
+                        {/*        <td className="text-medium-emphasis">Description:</td>*/}
+                        {/*        <td className="font-weight-bold">{news.description}</td>*/}
+                        {/*    </tr>*/}
+                        {/*        </>*/}
+                        {/*    ))}*/}
+                        {/*    </tbody>*/}
+                        {/*</table>*/}
                 </CCardText>
             </CCardBody>
         </CCard>

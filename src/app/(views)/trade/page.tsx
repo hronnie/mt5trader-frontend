@@ -30,7 +30,7 @@ import { SETTINGS_LOCAL_STORAGE } from "@/app/common/constants";
 import SymbolCard from "@/app/(views)/trade/components/symbolCard";
 import SymbolInfoCard from "@/app/(views)/trade/components/symbolInfoCard";
 
-const Cards = () => {
+const Trade = () => {
     const [formData, setFormData] = useState(null);
     const [selectedSymbol, setSelectedSymbol] = useState(null);
     const [toast, addToast] = useState(0);
@@ -140,4 +140,4 @@ const Cards = () => {
     );
 };
 
-export default Cards;
+export default Trade;
