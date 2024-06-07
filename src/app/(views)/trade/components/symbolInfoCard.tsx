@@ -3,7 +3,7 @@ import {
     CCardBody,
     CCardHeader,
     CCardText,
-    CCardTitle,
+    CCardTitle, CPlaceholder,
     CTable, CTableBody,
     CTableDataCell,
     CTableHead,
@@ -24,27 +24,50 @@ interface News {
 }
 
 const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState<News[] | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true); // Set loading state to true whenever a new fetch starts
             try {
                 const result = await getSymbolInfo(symbolName);
                 setData(result);
-            } catch (error) {
+                setError(null); // Clear any previous errors
+            } catch (error: any) {
                 setError(error);
+                setData(null); // Clear any previous data
             } finally {
-                setLoading(false);
+                setLoading(false); // Set loading state to false once fetching is done
             }
         };
 
         fetchData();
-    }, []);
+    }, [symbolName]); // Add symbolName as a dependency
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error?.message}</div>;
+    if (loading)
+        return <CCard
+            textColor={"primary"}
+            className={`mb-3 border-primary`}
+            style={{}}
+        >
+            <CCardHeader>{symbolName} Info</CCardHeader>
+            <CCardBody>
+                <CCardTitle>News info</CCardTitle>
+                <CCardText>
+                    <CPlaceholder as="p" animation="wave">
+                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12} />
+                    </CPlaceholder>
+                </CCardText>
+            </CCardBody>
+        </CCard>;
+
+    if (error) return <div>Error: {error.message}</div>;
+
     return (
         <CCard
             textColor={"primary"}
@@ -71,8 +94,8 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                         </CTableHead>
 
                         <CTableBody>
-                            {data && data.map((news: News) => (
-                                <CTableRow>
+                            {data && data.map((news: News, index: number) => (
+                                <CTableRow key={index}>
                                     <CTableDataCell>
                                         {news.time}
                                     </CTableDataCell>
@@ -86,30 +109,6 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                             ))}
                         </CTableBody>
                     </CTable>
-
-
-
-
-                        {/*<table className="table w-100">*/}
-                        {/*    <tbody>*/}
-                        {/*    {data && data.map((news: News) => (*/}
-                        {/*        <>*/}
-                        {/*    <tr>*/}
-                        {/*        <td className="text-medium-emphasis">Time:</td>*/}
-                        {/*        <td className="font-weight-bold">{news.time}</td>*/}
-                        {/*    </tr>*/}
-                        {/*    <tr>*/}
-                        {/*        <td className="text-medium-emphasis">Currency:</td>*/}
-                        {/*        <td className="font-weight-bold">{news.currency}</td>*/}
-                        {/*    </tr>*/}
-                        {/*    <tr>*/}
-                        {/*        <td className="text-medium-emphasis">Description:</td>*/}
-                        {/*        <td className="font-weight-bold">{news.description}</td>*/}
-                        {/*    </tr>*/}
-                        {/*        </>*/}
-                        {/*    ))}*/}
-                        {/*    </tbody>*/}
-                        {/*</table>*/}
                 </CCardText>
             </CCardBody>
         </CCard>
