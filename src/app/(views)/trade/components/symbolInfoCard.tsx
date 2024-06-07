@@ -12,6 +12,7 @@ import {
 } from "@coreui/react-pro";
 import React, {useEffect, useState} from "react";
 import {getSymbolInfo} from "@/services/newsService";
+import {getPriceInfo} from "@/services/priceService";
 
 interface SymbolCardProps {
     symbolName: string;
@@ -23,8 +24,15 @@ interface News {
     description: string;
 }
 
+interface Price {
+    askPrice: string;
+    bidPrice: string;
+    spread: string;
+}
+
 const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
     const [data, setData] = useState<News[] | null>(null);
+    const [priceData, setPriceData] = useState<Price | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -33,13 +41,16 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
             setLoading(true); // Set loading state to true whenever a new fetch starts
             try {
                 const result = await getSymbolInfo(symbolName);
+                const priceResult = await getPriceInfo(symbolName);
                 setData(result);
-                setError(null); // Clear any previous errors
+                setPriceData(priceResult);
+                setError(null);
             } catch (error: any) {
                 setError(error);
-                setData(null); // Clear any previous data
+                setData(null);
+                setPriceData(null);
             } finally {
-                setLoading(false); // Set loading state to false once fetching is done
+                setLoading(false);
             }
         };
 
@@ -116,8 +127,41 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                         )
                     }
                 </CCardText>
+                <CCardTitle>Price info</CCardTitle>
+                <CCardText>
+                    {priceData && <CTable align="middle" small>
+                        <CTableHead>
+                            <CTableRow>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Bid Price
+                                </CTableHeaderCell>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Ask Price
+                                </CTableHeaderCell>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Current Spread
+                                </CTableHeaderCell>
+                            </CTableRow>
+                        </CTableHead>
+
+                        <CTableBody>
+                            <CTableRow>
+                                <CTableDataCell>
+                                    {priceData.bidPrice}
+                                </CTableDataCell>
+                                <CTableDataCell>
+                                    {priceData.askPrice}
+                                </CTableDataCell>
+                                <CTableDataCell>
+                                    {priceData.spread}
+                                </CTableDataCell>
+                            </CTableRow>
+                        </CTableBody>
+                    </CTable>}
+                </CCardText>
             </CCardBody>
         </CCard>
+
     );
 };
 
