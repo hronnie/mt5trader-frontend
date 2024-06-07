@@ -20,7 +20,7 @@ interface SymbolCardProps {
 interface News {
     time: string;
     currency: string;
-    description: string
+    description: string;
 }
 
 const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
@@ -78,37 +78,43 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
             <CCardBody>
                 <CCardTitle>News info</CCardTitle>
                 <CCardText>
-                    <CTable align="middle" small>
-                        <CTableHead>
-                            <CTableRow>
-                                <CTableHeaderCell scope="col" className="w-25">
-                                    Time
-                                </CTableHeaderCell>
-                                <CTableHeaderCell scope="col" className="w-25">
-                                    Currency
-                                </CTableHeaderCell>
-                                <CTableHeaderCell scope="col" className="w-25">
-                                    Description
-                                </CTableHeaderCell>
-                            </CTableRow>
-                        </CTableHead>
+                    {
+                        !data || data.length === 0 ? (
+                            <div>I couldn't find any news for {symbolName}</div>
+                        ) : (
+                            <CTable align="middle" small>
+                                <CTableHead>
+                                    <CTableRow>
+                                        <CTableHeaderCell scope="col" className="w-25">
+                                            Time
+                                        </CTableHeaderCell>
+                                        <CTableHeaderCell scope="col" className="w-25">
+                                            Currency
+                                        </CTableHeaderCell>
+                                        <CTableHeaderCell scope="col" className="w-25">
+                                            Description
+                                        </CTableHeaderCell>
+                                    </CTableRow>
+                                </CTableHead>
 
-                        <CTableBody>
-                            {data && data.map((news: News, index: number) => (
-                                <CTableRow key={index}>
-                                    <CTableDataCell>
-                                        {news.time}
-                                    </CTableDataCell>
-                                    <CTableDataCell>
-                                        {news.currency}
-                                    </CTableDataCell>
-                                    <CTableDataCell>
-                                        {news.description}
-                                    </CTableDataCell>
-                                </CTableRow>
-                            ))}
-                        </CTableBody>
-                    </CTable>
+                                <CTableBody>
+                                    {data.map((news: News, index: number) => (
+                                        <CTableRow key={index}>
+                                            <CTableDataCell>
+                                                {news.time}
+                                            </CTableDataCell>
+                                            <CTableDataCell>
+                                                {news.currency}
+                                            </CTableDataCell>
+                                            <CTableDataCell>
+                                                {news.description}
+                                            </CTableDataCell>
+                                        </CTableRow>
+                                    ))}
+                                </CTableBody>
+                            </CTable>
+                        )
+                    }
                 </CCardText>
             </CCardBody>
         </CCard>
