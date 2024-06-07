@@ -37,24 +37,36 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
+        let isMounted = true; // Track if component is still mounted
+
         const fetchData = async () => {
             setLoading(true); // Set loading state to true whenever a new fetch starts
             try {
                 const result = await getSymbolInfo(symbolName);
                 const priceResult = await getPriceInfo(symbolName);
-                setData(result);
-                setPriceData(priceResult);
-                setError(null);
+                if (isMounted) {
+                    setData(result);
+                    setPriceData(priceResult);
+                    setError(null); // Clear any previous errors
+                }
             } catch (error: any) {
-                setError(error);
-                setData(null);
-                setPriceData(null);
+                if (isMounted) {
+                    setError(error);
+                    setData(null); // Clear any previous data
+                    setPriceData(null);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false); // Set loading state to false once fetching is done
+                }
             }
         };
 
         fetchData();
+
+        return () => {
+            isMounted = false; // Cleanup function to prevent state updates if component unmounts
+        };
     }, [symbolName]); // Add symbolName as a dependency
 
     if (loading)
@@ -161,7 +173,6 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                 </CCardText>
             </CCardBody>
         </CCard>
-
     );
 };
 
