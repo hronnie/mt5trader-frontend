@@ -11,7 +11,8 @@ const SymbolCard: React.FC<SymbolCardProps> = ({ symbolName, isSelected, onSelec
     return (
         <CCard
             style={{
-                width: '18rem',
+                width: '10rem',
+                height: '3.5rem',
                 backgroundColor: isSelected ? '#d0e1ff' : '#f3f4f7',
                 border: isSelected ? '2px solid #0056b3' : '1px solid #ccc',
                 cursor: 'pointer',

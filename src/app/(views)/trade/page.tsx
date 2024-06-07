@@ -60,16 +60,17 @@ const Trade = () => {
                         <strong>Select a Symbol</strong>
                     </CCardHeader>
                     <CCardBody>
-                        <h4>Forex symbols: </h4>
+                        <h5>Forex symbols: </h5>
                         <CRow>
                             {formData?.forex ? (
                                 Object.keys(formData.forex).map((key) => (
                                     formData.forex[key].enabled && (
-                                        <CCol xs={12} sm={6} md={4} lg={3} key={key}>
+                                        <CCol xs={12} sm={6} md={5} lg={2} key={key} style={{marginTop: "15px"}}>
                                             <SymbolCard
                                                 symbolName={key}
                                                 isSelected={selectedSymbol === key}
                                                 onSelect={() => handleSymbolSelect(key)}
+
                                             />
                                         </CCol>
                                     )
@@ -80,12 +81,12 @@ const Trade = () => {
                                 </CCol>
                             )}
                         </CRow>
-                        <h4 style={{marginTop: "15px"}}>Indices symbols: </h4>
+                        <h5 style={{marginTop: "15px"}}>Indices symbols: </h5>
                         <CRow>
                             {formData?.indices ? (
                                 Object.keys(formData.indices).map((key) => (
                                     formData.indices[key].enabled && (
-                                        <CCol xs={12} sm={6} md={4} lg={3} key={key}>
+                                        <CCol xs={12} sm={6} md={4} lg={2} key={key} style={{marginTop: "15px"}}>
                                             <SymbolCard
                                                 symbolName={key}
                                                 isSelected={selectedSymbol === key}
@@ -100,12 +101,12 @@ const Trade = () => {
                                 </CCol>
                             )}
                         </CRow>
-                        <h4 style={{marginTop: "15px"}}>Commodities symbols: </h4>
+                        <h5 style={{marginTop: "15px"}}>Commodities symbols: </h5>
                         <CRow>
                             {formData?.commodities ? (
                                 Object.keys(formData.commodities).map((key) => (
                                     formData.commodities[key].enabled && (
-                                        <CCol xs={12} sm={6} md={4} lg={3} key={key}>
+                                        <CCol xs={12} sm={6} md={4} lg={2} key={key} style={{marginTop: "15px"}}>
                                             <SymbolCard
                                                 symbolName={key}
                                                 isSelected={selectedSymbol === key}
