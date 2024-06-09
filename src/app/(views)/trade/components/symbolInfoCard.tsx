@@ -13,6 +13,7 @@ import {
 import React, {useEffect, useState} from "react";
 import {getSymbolInfo} from "@/services/newsService";
 import {getPriceInfo} from "@/services/priceService";
+import { format, parseISO } from 'date-fns';
 
 interface SymbolCardProps {
     symbolName: string;
@@ -36,6 +37,11 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
     const [priceData, setPriceData] = useState<Price | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+
+    const formatDate = (dateString: string) => {
+        const date = parseISO(dateString);
+        return format(date, 'Pp');  // 'Pp' is a predefined date format in date-fns for local date and time
+    }
 
     useEffect(() => {
         let isMounted = true; // Track if component is still mounted
@@ -69,6 +75,18 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
             isMounted = false; // Cleanup function to prevent state updates if component unmounts
         };
     }, [symbolName]); // Add symbolName as a dependency
+
+    const getImpactStyles = (impact: string) => {
+        switch (impact) {
+            case 'High':
+                return { backgroundColor: '#ef376e', color: 'white' };
+            case 'Medium':
+                return { backgroundColor: '#ffcc00', color: '#000000' };
+            case 'Low':
+            default:
+                return { backgroundColor: '#f3f4f7', color: '#000000' };
+        }
+    }
 
     if (loading)
         return <CCard
@@ -116,10 +134,10 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                                             Country
                                         </CTableHeaderCell>
                                         <CTableHeaderCell scope="col" className="w-25">
-                                            Title
+                                            Impact
                                         </CTableHeaderCell>
                                         <CTableHeaderCell scope="col" className="w-25">
-                                            Impact
+                                            Title
                                         </CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
@@ -128,16 +146,16 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                                     {data.map((news: News, index: number) => (
                                         <CTableRow key={index}>
                                             <CTableDataCell>
-                                                {news.date}
+                                                {formatDate(news.date)}
                                             </CTableDataCell>
                                             <CTableDataCell>
                                                 {news.country}
                                             </CTableDataCell>
-                                            <CTableDataCell>
-                                                {news.title}
+                                            <CTableDataCell style={getImpactStyles(news.impact)}>
+                                                {news.impact}
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                {news.impact}
+                                                {news.title}
                                             </CTableDataCell>
                                         </CTableRow>
                                     ))}
