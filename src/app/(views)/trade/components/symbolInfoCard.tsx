@@ -19,9 +19,10 @@ interface SymbolCardProps {
 }
 
 interface News {
-    time: string;
-    currency: string;
-    description: string;
+    date: string;
+    country: string;
+    title: string;
+    impact: string;
 }
 
 interface Price {
@@ -109,13 +110,16 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                                 <CTableHead>
                                     <CTableRow>
                                         <CTableHeaderCell scope="col" className="w-25">
-                                            Time
+                                            Date
                                         </CTableHeaderCell>
                                         <CTableHeaderCell scope="col" className="w-25">
-                                            Currency
+                                            Country
                                         </CTableHeaderCell>
                                         <CTableHeaderCell scope="col" className="w-25">
-                                            Description
+                                            Title
+                                        </CTableHeaderCell>
+                                        <CTableHeaderCell scope="col" className="w-25">
+                                            Impact
                                         </CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
@@ -124,13 +128,16 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                                     {data.map((news: News, index: number) => (
                                         <CTableRow key={index}>
                                             <CTableDataCell>
-                                                {news.time}
+                                                {news.date}
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                {news.currency}
+                                                {news.country}
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                {news.description}
+                                                {news.title}
+                                            </CTableDataCell>
+                                            <CTableDataCell>
+                                                {news.impact}
                                             </CTableDataCell>
                                         </CTableRow>
                                     ))}
