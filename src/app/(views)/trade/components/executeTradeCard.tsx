@@ -1,7 +1,9 @@
 import {
+    CAlert,
+    CButton,
     CCard,
     CCardBody,
-    CCardHeader,
+    CCardHeader, CCardText,
     CCardTitle,
     CCol,
     CFormInput,
@@ -52,6 +54,29 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
     const handleToggleChange = (setter) => (event) => {
         const checked = event.target.checked;
         setter(checked);
+    }
+
+    const isPriceFilledCorrectly = () => {
+        return !priceData
+            || priceData?.askPrice === slPrice
+            || ((tpPrice === 0 || tpPrice === priceData?.askPrice) && tpEnabled)
+            || ((entryPrice === 0 || entryPrice === priceData?.askPrice) && entryEnabled);
+    }
+
+    const isShortDisabled = () => {
+        if (isPriceFilledCorrectly()
+            || (tpEnabled && tpPrice > priceData?.askPrice)) {
+            return true;
+        }
+        return false;
+    }
+
+    const isLongDisabled = () => {
+        if (isPriceFilledCorrectly()
+            || (tpEnabled && tpPrice < priceData?.askPrice)) {
+            return true;
+        }
+        return false;
     }
 
     return (
@@ -110,6 +135,37 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                         )}
                     </CRow>
                 </CListGroupItem>
+                {!priceData && <CAlert color="warning">
+                    I could not get price data, please check if your Metatrader 5 client is running
+                </CAlert>}
+                {priceData?.askPrice === slPrice && <CAlert color="danger">
+                    Stop Loss price cannot be equal to current price.
+                </CAlert>}
+                {((tpPrice === 0 || tpPrice === priceData?.askPrice) && tpEnabled) && <CAlert color="danger">
+                    Take Profit price cannot be empty if it's enabled
+                </CAlert>}
+                {((entryPrice === 0 || entryPrice === priceData?.askPrice) && entryEnabled) && <CAlert color="danger">
+                    Entry price cannot be empty if it's enabled
+                </CAlert>}
+                {(tpEnabled && priceData?.askPrice && tpPrice > priceData.askPrice) && <CAlert color="warning">
+                    Take Profit price is greater than current price so you can only start Long position.
+                </CAlert>}
+                {(tpEnabled && priceData?.askPrice && tpPrice < priceData.askPrice) && <CAlert color="warning">
+                    Take Profit price is less than current price so you can only start Short position.
+                </CAlert>}
+                <CCard
+                    textColor={'info'}
+                    className={`mb-3 border-info`}
+                    style={{ maxWidth: '18rem' }}
+                >
+                    <CCardHeader>Enter</CCardHeader>
+                    <CCardBody>
+                        <CCardText>
+                            <CButton color="danger" size="lg" disabled={isShortDisabled()}>Short</CButton>
+                            <CButton color="success" size="lg" disabled={isLongDisabled()}>Long</CButton>
+                        </CCardText>
+                    </CCardBody>
+                </CCard>
             </CCardBody>
         </CCard>
     );

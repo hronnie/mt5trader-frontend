@@ -1,5 +1,5 @@
 export interface Price {
-    askPrice: string;
-    bidPrice: string;
-    spread: string;
+    askPrice: number;
+    bidPrice: number;
+    spread: number;
 }
