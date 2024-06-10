@@ -51,27 +51,82 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         setter(checked);
     }
 
-    const isPriceFilledCorrectly = () => {
-        return !priceData
-            || priceData?.askPrice === slPrice
-            || ((tpPrice === 0 || tpPrice === priceData?.askPrice) && tpEnabled)
-            || ((entryPrice === 0) && entryEnabled) ;
-    }
+    const isShortEnabled = () => {
+        if (!priceData?.askPrice) {
+            return false;
+        }
+        const slPriceEligible = slPrice
+            && slPrice > 0
+            && slPrice > priceData?.askPrice;
 
-    const isShortDisabled = () => {
-        if (isPriceFilledCorrectly()
-            || (tpEnabled && tpPrice > priceData?.askPrice)
-            || slPrice < entryPrice) {
-            return true;
+        const tpPriceEligible = tpPrice
+            && tpPrice > 0
+            && tpPrice < priceData?.askPrice
+            && tpPrice < slPrice;
+
+        const onlySlPriceEnabled = !tpEnabled && !entryEnabled;
+        const slAndTpPriceEnabled = tpEnabled && !entryEnabled;
+        const allPriceEnabled = tpEnabled && entryEnabled;
+        if (onlySlPriceEnabled) {
+            if (slPriceEligible) {
+                return true;
+            }
+        } else if (slAndTpPriceEnabled) {
+            if (slPriceEligible && tpPriceEligible) {
+                return true;
+            }
+        } else if (allPriceEnabled) {
+            if (slPrice
+                && slPrice > 0
+                && tpPrice
+                && tpPrice > 0
+                && tpPrice < slPrice
+                && entryPrice
+                && entryPrice > 0
+                && entryPrice < slPrice
+                && entryPrice > tpPrice) {
+                return true;
+            }
         }
         return false;
     }
 
-    const isLongDisabled = () => {
-        if (isPriceFilledCorrectly()
-            || (tpEnabled && tpPrice < priceData?.askPrice)
-            || slPrice > entryPrice) {
-            return true;
+    const isLongEnabled = () => {
+        if (!priceData?.bidPrice) {
+            return false;
+        }
+        const slPriceEligible = slPrice
+            && slPrice > 0
+            && slPrice < priceData?.bidPrice;
+
+        const tpPriceEligible = tpPrice
+            && tpPrice > 0
+            && tpPrice > priceData?.bidPrice
+            && tpPrice > slPrice;
+
+        const onlySlPriceEnabled = !tpEnabled && !entryEnabled;
+        const slAndTpPriceEnabled = tpEnabled && !entryEnabled;
+        const allPriceEnabled = tpEnabled && entryEnabled;
+        if (onlySlPriceEnabled) {
+            if (slPriceEligible) {
+                return true;
+            }
+        } else if (slAndTpPriceEnabled) {
+            if (slPriceEligible && tpPriceEligible) {
+                return true;
+            }
+        } else if (allPriceEnabled) {
+            if (slPrice
+                && slPrice > 0
+                && tpPrice
+                && tpPrice > 0
+                && tpPrice > slPrice
+                && entryPrice
+                && entryPrice > 0
+                && entryPrice > slPrice
+                && entryPrice < tpPrice) {
+                return true;
+            }
         }
         return false;
     }
@@ -132,30 +187,17 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                         )}
                     </CRow>
                 </CListGroupItem>
-                {!priceData && <CAlert color="warning">
-                    I could not get price data, please check if your Metatrader 5 client is running
+                {!isLongEnabled() && !isShortEnabled() && <CAlert color="danger">
+                    Please provide valid data!
+
+                    <h4>Guideline</h4>
+                    <ul>
+                        <li>SL and TP price cannot be equal with current price (it is provided as a default value)</li>
+                        <li>SL and TP price cannot be empty, 0 or negative number</li>
+                        <li>The given data should be able to create a valid order</li>
+                    </ul>
                 </CAlert>}
-                {priceData?.askPrice === slPrice && <CAlert color="danger">
-                    Stop Loss price cannot be equal to current price.
-                </CAlert>}
-                {((tpPrice === 0 || tpPrice === priceData?.askPrice) && tpEnabled) && <CAlert color="danger">
-                    Take Profit price cannot be empty or equal to current price if it's enabled
-                </CAlert>}
-                {(entryPrice === 0 && entryEnabled) && <CAlert color="danger">
-                    Entry price cannot be empty if it's enabled
-                </CAlert>}
-                {(tpEnabled && priceData?.askPrice && tpPrice > priceData.askPrice) && <CAlert color="warning">
-                    Take Profit price is greater than current price so you can only start Long position.
-                </CAlert>}
-                {(tpEnabled && priceData?.askPrice && tpPrice < priceData.askPrice) && <CAlert color="warning">
-                    Take Profit price is less than current price so you can only start Short position.
-                </CAlert>}
-                {(slPrice < entryPrice) && <CAlert color="warning">
-                    Stop Loss price is less than entry price so you can only start Long position.
-                </CAlert>}
-                {(slPrice > entryPrice) && <CAlert color="warning">
-                    Stop Loss price is greater than entry price so you can only start Short position.
-                </CAlert>}
+
                 <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
                     <CCard textColor={'info'} className={`mb-3 border-info`} style={{ minWidth: '38rem' }}>
                         <CCardHeader>Enter</CCardHeader>
@@ -164,18 +206,18 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                                 <CListGroupItem>
                                     <CRow className="mb-3 align-items-center">
                                         <CCol className="d-flex justify-content-center">
-                                            <CButton color="danger" size="lg" disabled={isShortDisabled()}>Short</CButton>
+                                            <CButton color="danger" size="lg" disabled={!isShortEnabled()}>Short</CButton>
                                         </CCol>
                                         <CCol className="d-flex justify-content-center">
-                                            <CButton color="success" size="lg" disabled={isLongDisabled()}>Long</CButton>
+                                            <CButton color="success" size="lg" disabled={!isLongEnabled()}>Long</CButton>
                                         </CCol>
                                     </CRow>
                                     <CRow className="mb-3 align-items-center">
                                         <CCol className="d-flex justify-content-center">
-                                            {!isShortDisabled() && <div>table</div>}
+                                            {isShortEnabled() && <div>table</div>}
                                         </CCol>
                                         <CCol className="d-flex justify-content-center">
-                                            {isShortDisabled()  && <div>table</div>}
+                                            {isLongEnabled()  && <div>table</div>}
                                         </CCol>
                                     </CRow>
                                 </CListGroupItem>
