@@ -52,6 +52,27 @@ const Trade = () => {
         setSelectedSymbol(symbol);
     };
 
+    const renderSymbols = (symbols) => {
+        return Object.keys(symbols).map((key) => (
+            symbols[key].enabled && (
+                <CCol xs={12} sm={6} md={5} lg={2} key={key} style={{marginTop: "15px"}}>
+                    <SymbolCard
+                        symbolName={key}
+                        isSelected={selectedSymbol === key}
+                        onSelect={() => handleSymbolSelect(key)}
+                    />
+                </CCol>
+            )
+        ));
+    };
+
+    const isSymbolArrayEmpty = (symbolArray) => {
+        if (!symbolArray || Object.keys(symbolArray).length === 0) {
+            return true;
+        }
+        return !Object.values(symbolArray).some(symbol => symbol?.enabled);
+    }
+
     return (
         <CRow>
             <CCol xs={12}>
@@ -60,83 +81,46 @@ const Trade = () => {
                         <strong>Select a Symbol</strong>
                     </CCardHeader>
                     <CCardBody>
-                        <h5>Forex symbols: </h5>
-                        <CRow>
-                            {formData?.forex ? (
-                                Object.keys(formData.forex).map((key) => (
-                                    formData.forex[key].enabled && (
-                                        <CCol xs={12} sm={6} md={5} lg={2} key={key} style={{marginTop: "15px"}}>
-                                            <SymbolCard
-                                                symbolName={key}
-                                                isSelected={selectedSymbol === key}
-                                                onSelect={() => handleSymbolSelect(key)}
+                        {!isSymbolArrayEmpty(formData?.forex) && (
+                            <>
+                                <h5>Forex symbols:</h5>
+                                <CRow>
+                                    {renderSymbols(formData.forex)}
+                                </CRow>
+                            </>
+                        )}
 
-                                            />
-                                        </CCol>
-                                    )
-                                ))
-                            ) : (
+                        {!isSymbolArrayEmpty(formData?.indices) && (
+                            <>
+                                <h5 style={{marginTop: "15px"}}>Indices symbols:</h5>
+                                <CRow>
+                                    {renderSymbols(formData.indices)}
+                                </CRow>
+                            </>
+                        )}
+
+                        {!isSymbolArrayEmpty(formData?.commodities) && (
+                            <>
+                                <h5 style={{marginTop: "15px"}}>Commodities symbols:</h5>
+                                <CRow>
+                                    {renderSymbols(formData.commodities)}
+                                </CRow>
+                            </>
+                        )}
+
+                        {(!formData?.forex || Object.keys(formData.forex).length === 0) &&
+                            (!formData?.indices || Object.keys(formData.indices).length === 0) &&
+                            (!formData?.commodities || Object.keys(formData.commodities).length === 0) && (
                                 <CCol>
                                     <CCardText>Please add symbols in the Settings page</CCardText>
                                 </CCol>
                             )}
-                        </CRow>
-                        <h5 style={{marginTop: "15px"}}>Indices symbols: </h5>
-                        <CRow>
-                            {formData?.indices ? (
-                                Object.keys(formData.indices).map((key) => (
-                                    formData.indices[key].enabled && (
-                                        <CCol xs={12} sm={6} md={4} lg={2} key={key} style={{marginTop: "15px"}}>
-                                            <SymbolCard
-                                                symbolName={key}
-                                                isSelected={selectedSymbol === key}
-                                                onSelect={() => handleSymbolSelect(key)}
-                                            />
-                                        </CCol>
-                                    )
-                                ))
-                            ) : (
-                                <CCol>
-                                    <CCardText>Please add symbols in the Settings page</CCardText>
-                                </CCol>
-                            )}
-                        </CRow>
-                        <h5 style={{marginTop: "15px"}}>Commodities symbols: </h5>
-                        <CRow>
-                            {formData?.commodities ? (
-                                Object.keys(formData.commodities).map((key) => (
-                                    formData.commodities[key].enabled && (
-                                        <CCol xs={12} sm={6} md={4} lg={2} key={key} style={{marginTop: "15px"}}>
-                                            <SymbolCard
-                                                symbolName={key}
-                                                isSelected={selectedSymbol === key}
-                                                onSelect={() => handleSymbolSelect(key)}
-                                            />
-                                        </CCol>
-                                    )
-                                ))
-                            ) : (
-                                <CCol>
-                                    <CCardText>Please add symbols in the Settings page</CCardText>
-                                </CCol>
-                            )}
-                        </CRow>
                     </CCardBody>
                 </CCard>
             </CCol>
             {selectedSymbol && <CCol xs={12}>
-                <SymbolInfoCard symbolName={selectedSymbol}/>
+                <SymbolInfoCard symbolName={selectedSymbol} />
             </CCol>}
-            {/*<CCol xs={12}>*/}
-            {/*    <CCard className="mb-4">*/}
-            {/*        <CCardHeader>*/}
-            {/*            <strong>Card title</strong>*/}
-            {/*        </CCardHeader>*/}
-            {/*        <CCardBody>*/}
-            {/*            card body*/}
-            {/*        </CCardBody>*/}
-            {/*    </CCard>*/}
-            {/*</CCol>*/}
         </CRow>
     );
 };
