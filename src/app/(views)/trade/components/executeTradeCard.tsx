@@ -3,7 +3,8 @@ import {
     CButton,
     CCard,
     CCardBody,
-    CCardHeader, CCardText,
+    CCardHeader,
+    CCardText,
     CCardTitle,
     CCol,
     CFormInput,
@@ -11,11 +12,10 @@ import {
     CListGroupItem,
     CRow
 } from "@coreui/react-pro";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@/app/(views)/settings/settings.module.css";
-import {getSymbolInfo} from "@/services/newsService";
-import {getPriceInfo} from "@/services/priceService";
-import {Price} from "@/app/interfaces/priceInterface";
+import { getPriceInfo } from "@/services/priceService";
+import { Price } from "@/app/interfaces/priceInterface";
 
 interface ExecuteTradeCardProps {
     symbolName: string;
@@ -29,10 +29,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
     const [entryEnabled, setEntryEnabled] = useState(false);
     const [priceData, setPriceData] = useState<Price | null>(null);
 
-
     useEffect(() => {
-        let isMounted = true; // Track if component is still mounted
-
         const fetchData = async () => {
             const priceResult = await getPriceInfo(symbolName);
             setPriceData(priceResult);
@@ -42,8 +39,6 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         };
 
         fetchData();
-
-
     }, [symbolName]);
 
     const handleChange = (setter) => (event) => {
@@ -60,12 +55,13 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         return !priceData
             || priceData?.askPrice === slPrice
             || ((tpPrice === 0 || tpPrice === priceData?.askPrice) && tpEnabled)
-            || ((entryPrice === 0 || entryPrice === priceData?.askPrice) && entryEnabled);
+            || ((entryPrice === 0) && entryEnabled) ;
     }
 
     const isShortDisabled = () => {
         if (isPriceFilledCorrectly()
-            || (tpEnabled && tpPrice > priceData?.askPrice)) {
+            || (tpEnabled && tpPrice > priceData?.askPrice)
+            || slPrice < entryPrice) {
             return true;
         }
         return false;
@@ -73,7 +69,8 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
 
     const isLongDisabled = () => {
         if (isPriceFilledCorrectly()
-            || (tpEnabled && tpPrice < priceData?.askPrice)) {
+            || (tpEnabled && tpPrice < priceData?.askPrice)
+            || slPrice > entryPrice) {
             return true;
         }
         return false;
@@ -83,7 +80,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         <CCard>
             <CCardHeader>Execute trade for {symbolName}</CCardHeader>
             <CCardBody>
-                <CCardTitle style={{marginBottom: "20px"}}>Select entry parameters</CCardTitle>
+                <CCardTitle style={{ marginBottom: "20px" }}>Select entry parameters</CCardTitle>
                 <CListGroupItem>
                     <CRow className="mb-3">
                         <CCol xs="auto">
@@ -142,9 +139,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                     Stop Loss price cannot be equal to current price.
                 </CAlert>}
                 {((tpPrice === 0 || tpPrice === priceData?.askPrice) && tpEnabled) && <CAlert color="danger">
-                    Take Profit price cannot be empty if it's enabled
+                    Take Profit price cannot be empty or equal to current price if it's enabled
                 </CAlert>}
-                {((entryPrice === 0 || entryPrice === priceData?.askPrice) && entryEnabled) && <CAlert color="danger">
+                {(entryPrice === 0 && entryEnabled) && <CAlert color="danger">
                     Entry price cannot be empty if it's enabled
                 </CAlert>}
                 {(tpEnabled && priceData?.askPrice && tpPrice > priceData.askPrice) && <CAlert color="warning">
@@ -153,19 +150,39 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                 {(tpEnabled && priceData?.askPrice && tpPrice < priceData.askPrice) && <CAlert color="warning">
                     Take Profit price is less than current price so you can only start Short position.
                 </CAlert>}
-                <CCard
-                    textColor={'info'}
-                    className={`mb-3 border-info`}
-                    style={{ maxWidth: '18rem' }}
-                >
-                    <CCardHeader>Enter</CCardHeader>
-                    <CCardBody>
-                        <CCardText>
-                            <CButton color="danger" size="lg" disabled={isShortDisabled()}>Short</CButton>
-                            <CButton color="success" size="lg" disabled={isLongDisabled()}>Long</CButton>
-                        </CCardText>
-                    </CCardBody>
-                </CCard>
+                {(slPrice < entryPrice) && <CAlert color="warning">
+                    Stop Loss price is less than entry price so you can only start Long position.
+                </CAlert>}
+                {(slPrice > entryPrice) && <CAlert color="warning">
+                    Stop Loss price is greater than entry price so you can only start Short position.
+                </CAlert>}
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+                    <CCard textColor={'info'} className={`mb-3 border-info`} style={{ minWidth: '38rem' }}>
+                        <CCardHeader>Enter</CCardHeader>
+                        <CCardBody>
+                            <CCardText>
+                                <CListGroupItem>
+                                    <CRow className="mb-3 align-items-center">
+                                        <CCol className="d-flex justify-content-center">
+                                            <CButton color="danger" size="lg" disabled={isShortDisabled()}>Short</CButton>
+                                        </CCol>
+                                        <CCol className="d-flex justify-content-center">
+                                            <CButton color="success" size="lg" disabled={isLongDisabled()}>Long</CButton>
+                                        </CCol>
+                                    </CRow>
+                                    <CRow className="mb-3 align-items-center">
+                                        <CCol className="d-flex justify-content-center">
+                                            {!isShortDisabled() && <div>table</div>}
+                                        </CCol>
+                                        <CCol className="d-flex justify-content-center">
+                                            {isShortDisabled()  && <div>table</div>}
+                                        </CCol>
+                                    </CRow>
+                                </CListGroupItem>
+                            </CCardText>
+                        </CCardBody>
+                    </CCard>
+                </div>
             </CCardBody>
         </CCard>
     );
