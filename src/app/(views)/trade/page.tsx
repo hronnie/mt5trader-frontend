@@ -29,6 +29,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { SETTINGS_LOCAL_STORAGE } from "@/app/common/constants";
 import SymbolCard from "@/app/(views)/trade/components/symbolCard";
 import SymbolInfoCard from "@/app/(views)/trade/components/symbolInfoCard";
+import ExecuteTradeCard from "@/app/(views)/trade/components/executeTradeCard";
 
 const Trade = () => {
     const [formData, setFormData] = useState(null);
@@ -120,6 +121,9 @@ const Trade = () => {
             </CCol>
             {selectedSymbol && <CCol xs={12}>
                 <SymbolInfoCard symbolName={selectedSymbol} />
+            </CCol>}
+            {selectedSymbol && <CCol xs={12}>
+                <ExecuteTradeCard symbolName={selectedSymbol} />
             </CCol>}
         </CRow>
     );

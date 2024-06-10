@@ -14,6 +14,7 @@ import React, {useEffect, useState} from "react";
 import {getSymbolInfo} from "@/services/newsService";
 import {getPriceInfo} from "@/services/priceService";
 import { format, parseISO } from 'date-fns';
+import {Price} from "@/app/interfaces/priceInterface";
 
 interface SymbolCardProps {
     symbolName: string;
@@ -24,12 +25,6 @@ interface News {
     country: string;
     title: string;
     impact: string;
-}
-
-interface Price {
-    askPrice: string;
-    bidPrice: string;
-    spread: string;
 }
 
 const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
