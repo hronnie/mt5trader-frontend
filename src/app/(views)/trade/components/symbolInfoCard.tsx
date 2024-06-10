@@ -40,7 +40,13 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
 
     const formatDate = (dateString: string) => {
         const date = parseISO(dateString);
-        return format(date, 'Pp');  // 'Pp' is a predefined date format in date-fns for local date and time
+        const formattedDate = format(date, 'PPP'); // Format date part
+        return formattedDate;
+    }
+    const formatTime = (dateString: string) => {
+        const date = parseISO(dateString);
+        const formattedTime = format(date, 'p'); // Format time part
+        return formattedTime;
     }
 
     useEffect(() => {
@@ -146,7 +152,7 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                                     {data.map((news: News, index: number) => (
                                         <CTableRow key={index}>
                                             <CTableDataCell>
-                                                {formatDate(news.date)}
+                                                {formatDate(news.date)} <strong>{formatTime(news.date)}</strong>
                                             </CTableDataCell>
                                             <CTableDataCell>
                                                 {news.country}
