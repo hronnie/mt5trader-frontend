@@ -1,6 +1,7 @@
 'use client'
 
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
@@ -30,6 +31,7 @@ import { SETTINGS_LOCAL_STORAGE } from "@/app/common/constants";
 import SymbolCard from "@/app/(views)/trade/components/symbolCard";
 import SymbolInfoCard from "@/app/(views)/trade/components/symbolInfoCard";
 import ExecuteTradeCard from "@/app/(views)/trade/components/executeTradeCard";
+import Link from "next/link";
 
 const Trade = () => {
     const [formData, setFormData] = useState(null);
@@ -109,11 +111,15 @@ const Trade = () => {
                             </>
                         )}
 
-                        {(!formData?.forex || Object.keys(formData.forex).length === 0) &&
-                            (!formData?.indices || Object.keys(formData.indices).length === 0) &&
-                            (!formData?.commodities || Object.keys(formData.commodities).length === 0) && (
+                        {isSymbolArrayEmpty(formData?.forex) &&
+                            isSymbolArrayEmpty(formData?.indices) &&
+                            isSymbolArrayEmpty(formData?.commodities) && (
                                 <CCol>
-                                    <CCardText>Please add symbols in the Settings page</CCardText>
+                                    <CCardText>
+                                        <CAlert color="danger">
+                                            Please add at least one symbol in the <Link href="/settings">settings page</Link>.
+                                        </CAlert>
+                                    </CCardText>
                                 </CCol>
                             )}
                     </CCardBody>

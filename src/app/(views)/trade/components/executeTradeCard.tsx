@@ -176,6 +176,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         if (!entryPriceStr || !estimatedTpPriceStr) {
             return 0;
         }
+        // @ts-ignore
         const pipSize = Math.abs(parseFloat(entryPriceStr) - parseFloat(estimatedTpPriceStr)) / getPipSizeBySymbol(symbolName);
         return pipSize.toFixed(2);
     }
