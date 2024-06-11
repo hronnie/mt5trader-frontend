@@ -55,16 +55,16 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
     }
 
     const isShortEnabled = () => {
-        if (!priceData?.askPrice) {
+        if (!priceData?.bidPrice) {
             return false;
         }
         const slPriceEligible = slPrice
             && slPrice > 0
-            && slPrice > priceData?.askPrice;
+            && slPrice > priceData?.bidPrice;
 
         const tpPriceEligible = tpPrice
             && tpPrice > 0
-            && tpPrice < priceData?.askPrice
+            && tpPrice < priceData?.bidPrice
             && tpPrice < slPrice;
 
         const onlySlPriceEnabled = !tpEnabled && !entryEnabled;
@@ -95,16 +95,16 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
     }
 
     const isLongEnabled = () => {
-        if (!priceData?.bidPrice) {
+        if (!priceData?.askPrice) {
             return false;
         }
         const slPriceEligible = slPrice
             && slPrice > 0
-            && slPrice < priceData?.bidPrice;
+            && slPrice < priceData?.askPrice;
 
         const tpPriceEligible = tpPrice
             && tpPrice > 0
-            && tpPrice > priceData?.bidPrice
+            && tpPrice > priceData?.askPrice
             && tpPrice > slPrice;
 
         const onlySlPriceEnabled = !tpEnabled && !entryEnabled;
@@ -165,9 +165,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
 
     const getEstimatedEntryPrice = (direction: 'short' | 'long') => {
         if (direction === 'short') {
-            return (entryEnabled ? entryPrice : priceData?.askPrice)?.toFixed(5);
-        } else {
             return (entryEnabled ? entryPrice : priceData?.bidPrice)?.toFixed(5);
+        } else {
+            return (entryEnabled ? entryPrice : priceData?.askPrice)?.toFixed(5);
         }
     }
     const getEstimatedTpPip = (direction: 'short' | 'long') => {
