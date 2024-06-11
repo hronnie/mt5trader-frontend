@@ -47,9 +47,10 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         setter(price);
     }
 
-    const handleToggleChange = (setter) => (event) => {
+    const handleToggleChange = (checkboxSetter, valueSetter) => (event) => {
         const checked = event.target.checked;
-        setter(checked);
+        checkboxSetter(checked);
+        valueSetter(priceData?.askPrice);
     }
 
     const isShortEnabled = () => {
@@ -146,9 +147,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
             estimatedEntryPrice = direction === 'short' ? priceData?.askPrice : priceData?.bidPrice;
         }
         if (direction === 'short') {
-            return estimatedEntryPrice - (ratio * slPip * pipSize);
+            return (estimatedEntryPrice - (ratio * slPip * pipSize)).toFixed(5);
         } else {
-            return estimatedEntryPrice + (ratio * slPip * pipSize);
+            return (estimatedEntryPrice + (ratio * slPip * pipSize)).toFixed(5);
         }
     }
 
@@ -160,9 +161,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
 
     const getEstimatedEntryPrice = (direction: 'short' | 'long') => {
         if (direction === 'short') {
-            return entryEnabled ? entryPrice : priceData?.askPrice;
+            return (entryEnabled ? entryPrice : priceData?.askPrice).toFixed(5);
         } else {
-            return entryEnabled ? entryPrice : priceData?.bidPrice;
+            return (entryEnabled ? entryPrice : priceData?.bidPrice).toFixed(5);
         }
     }
     const getEstimatedTpPip = (direction: 'short' | 'long') => {
@@ -221,7 +222,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                     </CRow>
                     <CRow className="mb-3 align-items-center">
                         <CCol xs="auto">
-                            <CFormSwitch label="Take Profit" id="tpSwitch" onChange={handleToggleChange(setTpEnabled)} />
+                            <CFormSwitch label="Take Profit" id="tpSwitch" onChange={handleToggleChange(setTpEnabled, setTpPrice)} />
                         </CCol>
                         {tpEnabled && (
                             <CCol xs="auto">
@@ -238,7 +239,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                     </CRow>
                     <CRow className="mb-3 align-items-center">
                         <CCol xs="auto">
-                            <CFormSwitch label="Entry Price" id="entrySwitch" onChange={handleToggleChange(setEntryEnabled)} />
+                            <CFormSwitch label="Entry Price" id="entrySwitch" onChange={handleToggleChange(setEntryEnabled, setEntryPrice)} />
                         </CCol>
                         {entryEnabled && (
                             <CCol xs="auto">
@@ -273,10 +274,10 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                                 <CListGroupItem>
                                     <CRow className="mb-3 align-items-center">
                                         <CCol className="d-flex justify-content-center">
-                                            <CButton color="danger" size="lg" disabled={!isShortEnabled()}>Short</CButton>
+                                            <CButton color="danger" size="lg" disabled={!isShortEnabled()} style={{cursor: "pointer"}}>Short</CButton>
                                         </CCol>
                                         <CCol className="d-flex justify-content-center">
-                                            <CButton color="success" size="lg" disabled={!isLongEnabled()}>Long</CButton>
+                                            <CButton color="success" size="lg" disabled={!isLongEnabled()} style={{cursor: "pointer"}}>Long</CButton>
                                         </CCol>
                                     </CRow>
                                     <CRow className="mb-3 align-items-center">
