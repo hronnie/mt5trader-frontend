@@ -8,7 +8,7 @@ import {
     CCardTitle,
     CCol,
     CFormInput,
-    CFormSwitch,
+    CFormSwitch, CListGroup,
     CListGroupItem,
     CRow
 } from "@coreui/react-pro";
@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import styles from "@/app/(views)/settings/settings.module.css";
 import { getPriceInfo } from "@/services/priceService";
 import { Price } from "@/app/interfaces/priceInterface";
+import {SETTINGS_LOCAL_STORAGE} from "@/app/common/constants";
 
 interface ExecuteTradeCardProps {
     symbolName: string;
@@ -131,6 +132,72 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         return false;
     }
 
+    const getEstimatedTpPrice = (direction: 'short' | 'long') => {
+        if (tpEnabled) {
+            return tpPrice;
+        }
+        const ratio = getRatio(symbolName);
+        const slPip = getEstimatedSlPip(direction);
+        const pipSize = getPipSizeBySymbol(symbolName);
+        let estimatedEntryPrice = null;
+        if (entryEnabled && entryPrice) {
+            estimatedEntryPrice = entryPrice;
+        } else {
+            estimatedEntryPrice = direction === 'short' ? priceData?.askPrice : priceData?.bidPrice;
+        }
+        if (direction === 'short') {
+            return estimatedEntryPrice - (ratio * slPip * pipSize);
+        } else {
+            return estimatedEntryPrice + (ratio * slPip * pipSize);
+        }
+    }
+
+    const getEstimatedSlPip = (direction: 'short' | 'long') => {
+        const entryPrice = getEstimatedEntryPrice(direction);
+        const result = Math.abs(entryPrice - slPrice) / getPipSizeBySymbol(symbolName);
+        return result.toFixed(2);
+    }
+
+    const getEstimatedEntryPrice = (direction: 'short' | 'long') => {
+        if (direction === 'short') {
+            return entryEnabled ? entryPrice : priceData?.askPrice;
+        } else {
+            return entryEnabled ? entryPrice : priceData?.bidPrice;
+        }
+    }
+    const getEstimatedTpPip = (direction: 'short' | 'long') => {
+        const entryPrice = getEstimatedEntryPrice(direction);
+        const estimatedTpPrice = getEstimatedTpPrice(direction);
+        if (!estimatedTpPrice) {
+            return null;
+        }
+        const pipSize = Math.abs(entryPrice - estimatedTpPrice) / getPipSizeBySymbol(symbolName);
+        return pipSize.toFixed(2);
+    }
+
+    const getPipSizeBySymbol = (symbol: string) => {
+        const savedFormData = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+        let parsedSymbolData = null;
+        if (savedFormData) {
+            parsedSymbolData = JSON.parse(savedFormData);
+        }
+        for (const category in parsedSymbolData) {
+            if (parsedSymbolData[category].hasOwnProperty(symbol)) {
+                return parsedSymbolData[category][symbol]?.pipSize;
+            }
+        }
+        return null; // Symbol not found in any category
+    }
+    const getRatio = (symbol: string) => {
+        const savedFormData = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+        let parsedSymbolData = null;
+        if (savedFormData) {
+            parsedSymbolData = JSON.parse(savedFormData);
+        }
+        return parsedSymbolData.ratio;
+    }
+
+
     return (
         <CCard>
             <CCardHeader>Execute trade for {symbolName}</CCardHeader>
@@ -214,10 +281,26 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                                     </CRow>
                                     <CRow className="mb-3 align-items-center">
                                         <CCol className="d-flex justify-content-center">
-                                            {isShortEnabled() && <div>table</div>}
+                                            {isShortEnabled() && <span>
+                                                <h5>Estimated order params: {symbolName}</h5>
+                                                <CListGroup flush>
+                                                    <CListGroupItem><strong>Entry Price:</strong> {getEstimatedEntryPrice('short')}</CListGroupItem>
+                                                    <CListGroupItem><strong>Stop Loss Price:</strong> {slPrice}</CListGroupItem>
+                                                    <CListGroupItem><strong>Take Profit Price:</strong> {getEstimatedTpPrice('short')}</CListGroupItem>
+                                                    <CListGroupItem><strong>Stop Loss Pip:</strong> {getEstimatedSlPip('short')}</CListGroupItem>
+                                                    <CListGroupItem><strong>Take Profit Pip:</strong> {getEstimatedTpPip('short')}</CListGroupItem>
+                                            </CListGroup></span>}
                                         </CCol>
                                         <CCol className="d-flex justify-content-center">
-                                            {isLongEnabled()  && <div>table</div>}
+                                            {isLongEnabled() && <span>
+                                                <h5>Estimated order params: {symbolName}</h5>
+                                                <CListGroup flush>
+                                                    <CListGroupItem><strong>Entry Price:</strong> {getEstimatedEntryPrice('long')}</CListGroupItem>
+                                                    <CListGroupItem><strong>Stop Loss Price:</strong> {slPrice}</CListGroupItem>
+                                                    <CListGroupItem><strong>Take Profit Price:</strong> {getEstimatedTpPrice('long')}</CListGroupItem>
+                                                    <CListGroupItem><strong>Stop Loss Pip:</strong> {getEstimatedSlPip('long')}</CListGroupItem>
+                                                    <CListGroupItem><strong>Take Profit Pip: </strong> {getEstimatedTpPip('long')}</CListGroupItem>
+                                            </CListGroup></span>}
                                         </CCol>
                                     </CRow>
                                 </CListGroupItem>
