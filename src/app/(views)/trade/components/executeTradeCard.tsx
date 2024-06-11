@@ -12,7 +12,7 @@ import {
     CListGroupItem,
     CRow
 } from "@coreui/react-pro";
-import React, { useEffect, useState } from "react";
+import React, {BaseSyntheticEvent, useEffect, useState} from "react";
 import styles from "@/app/(views)/settings/settings.module.css";
 import { getPriceInfo } from "@/services/priceService";
 import { Price } from "@/app/interfaces/priceInterface";
@@ -42,12 +42,13 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         fetchData();
     }, [symbolName]);
 
-    const handleChange = (setter) => (event) => {
+    const handleChange = (setter: Function) => (event: BaseSyntheticEvent) => {
+        debugger;
         const price = parseFloat(event.target.value);
         setter(price);
     }
 
-    const handleToggleChange = (checkboxSetter, valueSetter) => (event) => {
+    const handleToggleChange = (checkboxSetter: Function, valueSetter: Function) => (event: BaseSyntheticEvent) => {
         const checked = event.target.checked;
         checkboxSetter(checked);
         valueSetter(priceData?.askPrice);
@@ -138,14 +139,13 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
             return tpPrice;
         }
         const ratio = getRatio(symbolName);
-        const slPip = getEstimatedSlPip(direction);
+        const slPip = parseFloat(getEstimatedSlPip(direction))
         const pipSize = getPipSizeBySymbol(symbolName);
-        let estimatedEntryPrice = null;
-        if (entryEnabled && entryPrice) {
-            estimatedEntryPrice = entryPrice;
-        } else {
-            estimatedEntryPrice = direction === 'short' ? priceData?.askPrice : priceData?.bidPrice;
+        const estEntryPriceStr = getEstimatedEntryPrice(direction);
+        if (!estEntryPriceStr) {
+            return 0;
         }
+        const estimatedEntryPrice = parseFloat(estEntryPriceStr);
         if (direction === 'short') {
             return (estimatedEntryPrice - (ratio * slPip * pipSize)).toFixed(5);
         } else {
@@ -154,25 +154,29 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
     }
 
     const getEstimatedSlPip = (direction: 'short' | 'long') => {
-        const entryPrice = getEstimatedEntryPrice(direction);
-        const result = Math.abs(entryPrice - slPrice) / getPipSizeBySymbol(symbolName);
+        const estEntryPriceStr = getEstimatedEntryPrice(direction);
+        if (!estEntryPriceStr) {
+            return "0";
+        }
+        const estimatedEntryPrice = parseFloat(estEntryPriceStr);
+        const result = Math.abs(estimatedEntryPrice - slPrice) / getPipSizeBySymbol(symbolName);
         return result.toFixed(2);
     }
 
     const getEstimatedEntryPrice = (direction: 'short' | 'long') => {
         if (direction === 'short') {
-            return (entryEnabled ? entryPrice : priceData?.askPrice).toFixed(5);
+            return (entryEnabled ? entryPrice : priceData?.askPrice)?.toFixed(5);
         } else {
-            return (entryEnabled ? entryPrice : priceData?.bidPrice).toFixed(5);
+            return (entryEnabled ? entryPrice : priceData?.bidPrice)?.toFixed(5);
         }
     }
     const getEstimatedTpPip = (direction: 'short' | 'long') => {
-        const entryPrice = getEstimatedEntryPrice(direction);
-        const estimatedTpPrice = getEstimatedTpPrice(direction);
-        if (!estimatedTpPrice) {
-            return null;
+        const entryPriceStr = getEstimatedEntryPrice(direction);
+        const estimatedTpPriceStr = getEstimatedTpPrice(direction);
+        if (!entryPriceStr || !estimatedTpPriceStr) {
+            return 0;
         }
-        const pipSize = Math.abs(entryPrice - estimatedTpPrice) / getPipSizeBySymbol(symbolName);
+        const pipSize = Math.abs(parseFloat(entryPriceStr) - parseFloat(estimatedTpPriceStr)) / getPipSizeBySymbol(symbolName);
         return pipSize.toFixed(2);
     }
 
@@ -187,7 +191,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                 return parsedSymbolData[category][symbol]?.pipSize;
             }
         }
-        return null; // Symbol not found in any category
+        return null;
     }
     const getRatio = (symbol: string) => {
         const savedFormData = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
