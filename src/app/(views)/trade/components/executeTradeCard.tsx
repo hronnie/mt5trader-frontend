@@ -89,8 +89,13 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
             && tpPrice < priceData?.bidPrice
             && tpPrice < slPrice;
 
+        const entryPriceEligible = entryPrice
+            && entryPrice > 0
+            && entryPrice < slPrice;
+
         const onlySlPriceEnabled = !tpEnabled && !entryEnabled;
         const slAndTpPriceEnabled = tpEnabled && !entryEnabled;
+        const slAndEntryPriceEnabled = !tpEnabled && entryEnabled;
         const allPriceEnabled = tpEnabled && entryEnabled;
         if (onlySlPriceEnabled) {
             if (slPriceEligible) {
@@ -98,6 +103,10 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
             }
         } else if (slAndTpPriceEnabled) {
             if (slPriceEligible && tpPriceEligible) {
+                return true;
+            }
+        } else if (slAndEntryPriceEnabled) {
+            if (slPriceEligible && entryPriceEligible) {
                 return true;
             }
         } else if (allPriceEnabled) {
@@ -129,15 +138,25 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
             && tpPrice > priceData?.askPrice
             && tpPrice > slPrice;
 
+        const entryPriceEligible = entryPrice
+            && entryPrice > 0
+            && entryPrice > slPrice;
+
         const onlySlPriceEnabled = !tpEnabled && !entryEnabled;
         const slAndTpPriceEnabled = tpEnabled && !entryEnabled;
+        const slAndEntryPriceEnabled = !tpEnabled && entryEnabled;
         const allPriceEnabled = tpEnabled && entryEnabled;
+
         if (onlySlPriceEnabled) {
             if (slPriceEligible) {
                 return true;
             }
         } else if (slAndTpPriceEnabled) {
             if (slPriceEligible && tpPriceEligible) {
+                return true;
+            }
+        } else if (slAndEntryPriceEnabled) {
+            if (slPriceEligible && entryPriceEligible) {
                 return true;
             }
         } else if (allPriceEnabled) {
@@ -232,7 +251,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
             <CCardBody>
                 <CCardTitle style={{marginBottom: "20px"}}>Select entry parameters</CCardTitle>
                 <CRow className="mb-3">
-                    <CCol xs="auto">
+                    <CCol xs="auto" style={{marginTop: "5px"}}>
                         <div>Sl Price</div>
                     </CCol>
                     <CCol xs="auto">
@@ -245,9 +264,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                             style={{maxWidth: '150px'}}
                         />
                     </CCol>
-                </CRow>
-                <CRow className="mb-3 align-items-center">
-                    <CCol xs="auto">
+                    <CCol xs="auto" style={{marginTop: "5px"}}>
                         <CFormSwitch label="Take Profit" id="tpSwitch"
                                      onChange={handleToggleChange(setTpEnabled, setTpPrice)}/>
                     </CCol>
@@ -263,9 +280,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                             />
                         </CCol>
                     )}
-                </CRow>
-                <CRow className="mb-3 align-items-center">
-                    <CCol xs="auto">
+                    <CCol xs="auto" style={{marginTop: "5px"}}>
                         <CFormSwitch label="Entry Price" id="entrySwitch"
                                      onChange={handleToggleChange(setEntryEnabled, setEntryPrice)}/>
                     </CCol>
@@ -281,6 +296,12 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                             />
                         </CCol>
                     )}
+                </CRow>
+                <CRow className="mb-3 align-items-center">
+
+                </CRow>
+                <CRow className="mb-3 align-items-center">
+
                 </CRow>
                 {!isLongEnabled() && !isShortEnabled() && <CAlert color="danger">
                     Please provide valid data!
