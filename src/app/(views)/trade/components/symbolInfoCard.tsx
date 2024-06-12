@@ -31,7 +31,7 @@ interface News {
 }
 
 const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
-    const [data, setData] = useState<News[] | null>(null);
+    const [newsData, setNewsData] = useState<News[] | null>(null);
     const [priceData, setPriceData] = useState<Price | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -56,14 +56,14 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
                 const result = await getSymbolInfo(symbolName);
                 const priceResult = await getPriceInfo(symbolName);
                 if (isMounted) {
-                    setData(result);
+                    setNewsData(result);
                     setPriceData(priceResult);
                     setError(null); // Clear any previous errors
                 }
             } catch (error: any) {
                 if (isMounted) {
                     setError(error);
-                    setData(null); // Clear any previous data
+                    setNewsData(null); // Clear any previous data
                     setPriceData(null);
                 }
             } finally {
@@ -122,7 +122,7 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
             <CCardBody>
                 <CCardTitle>News info</CCardTitle>
                 {
-                    !data || data.length === 0 ? (
+                    !newsData || newsData.length === 0 ? (
                         <div>I couldn't find any news for {symbolName}</div>
                     ) : (
                         <CTable align="middle" small>
@@ -144,7 +144,7 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
                             </CTableHead>
 
                             <CTableBody>
-                                {data.map((news: News, index: number) => (
+                                {newsData.map((news: News, index: number) => (
                                     <CTableRow key={index} color={new Date(news?.date) < new Date() ? "dark" : ""}>
                                         <CTableDataCell>
                                             {formatDate(news.date)} <strong>{formatTime(news.date)}</strong>
