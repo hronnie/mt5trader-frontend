@@ -145,7 +145,7 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
 
                             <CTableBody>
                                 {data.map((news: News, index: number) => (
-                                    <CTableRow key={index}>
+                                    <CTableRow key={index} color={new Date(news?.date) < new Date() ? "dark" : ""}>
                                         <CTableDataCell>
                                             {formatDate(news.date)} <strong>{formatTime(news.date)}</strong>
                                         </CTableDataCell>
