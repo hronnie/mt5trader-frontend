@@ -1,4 +1,6 @@
-import { CCard, CCardBody, CCardTitle } from "@coreui/react-pro";
+'use client'
+
+import {CCard, CCardBody, CCardTitle} from "@coreui/react-pro";
 import React from "react";
 
 interface SymbolCardProps {
@@ -7,7 +9,7 @@ interface SymbolCardProps {
     onSelect: () => void;
 }
 
-const SymbolCard: React.FC<SymbolCardProps> = ({ symbolName, isSelected, onSelect }) => {
+const SymbolCard: React.FC<SymbolCardProps> = ({symbolName, isSelected, onSelect}) => {
     return (
         <CCard
             style={{

@@ -1,34 +1,39 @@
+'use client'
+
 import {
     CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
-    CCardText,
     CCardTitle,
     CCol,
     CFormInput,
-    CFormSwitch, CListGroup,
+    CFormSwitch,
+    CListGroup,
     CListGroupItem,
     CRow
 } from "@coreui/react-pro";
 import React, {BaseSyntheticEvent, useEffect, useState} from "react";
 import styles from "@/app/(views)/settings/settings.module.css";
-import { getPriceInfo } from "@/services/priceService";
-import { Price } from "@/app/interfaces/priceInterface";
+import {getPriceInfo} from "@/services/priceService";
+import {Price} from "@/app/interfaces/priceInterface";
 import {SETTINGS_LOCAL_STORAGE} from "@/app/common/constants";
+import tradeService from "@/services/tradeService";
+import {TradeResult} from "@/app/interfaces/tradeResult";
 
 interface ExecuteTradeCardProps {
     symbolName: string;
 }
 
-const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
+const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
     const [slPrice, setSlPrice] = useState(0);
     const [tpPrice, setTpPrice] = useState(0);
     const [entryPrice, setEntryPrice] = useState(0);
     const [tpEnabled, setTpEnabled] = useState(false);
     const [entryEnabled, setEntryEnabled] = useState(false);
     const [priceData, setPriceData] = useState<Price | null>(null);
+    const [tradeResult, setTradeResult] = useState<TradeResult | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -42,8 +47,25 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         fetchData();
     }, [symbolName]);
 
+    const createLongOrder = async () => {
+        try {
+            const data = await tradeService.createLongOrder(symbolName, slPrice, tpPrice, entryPrice);
+            setTradeResult(data);
+        } catch (error) {
+            console.error('Failed to create long order', error);
+        }
+    };
+
+    const createShortOrder = async () => {
+        try {
+            const data = await tradeService.createShortOrder(symbolName, slPrice, tpPrice, entryPrice);
+            setTradeResult(data);
+        } catch (error) {
+            console.error('Failed to create short order', error);
+        }
+    };
+
     const handleChange = (setter: Function) => (event: BaseSyntheticEvent) => {
-        debugger;
         const price = parseFloat(event.target.value);
         setter(price);
     }
@@ -208,58 +230,58 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
         <CCard>
             <CCardHeader>Execute trade for {symbolName}</CCardHeader>
             <CCardBody>
-                <CCardTitle style={{ marginBottom: "20px" }}>Select entry parameters</CCardTitle>
-                <CListGroupItem>
-                    <CRow className="mb-3">
-                        <CCol xs="auto">
-                            <div>Sl Price</div>
-                        </CCol>
+                <CCardTitle style={{marginBottom: "20px"}}>Select entry parameters</CCardTitle>
+                <CRow className="mb-3">
+                    <CCol xs="auto">
+                        <div>Sl Price</div>
+                    </CCol>
+                    <CCol xs="auto">
+                        <CFormInput
+                            type="number"
+                            step={0.0001}
+                            value={slPrice}
+                            onChange={handleChange(setSlPrice)}
+                            className={styles.leverageInput}
+                            style={{maxWidth: '150px'}}
+                        />
+                    </CCol>
+                </CRow>
+                <CRow className="mb-3 align-items-center">
+                    <CCol xs="auto">
+                        <CFormSwitch label="Take Profit" id="tpSwitch"
+                                     onChange={handleToggleChange(setTpEnabled, setTpPrice)}/>
+                    </CCol>
+                    {tpEnabled && (
                         <CCol xs="auto">
                             <CFormInput
                                 type="number"
+                                value={tpPrice}
                                 step={0.0001}
-                                value={slPrice}
-                                onChange={handleChange(setSlPrice)}
+                                onChange={handleChange(setTpPrice)}
                                 className={styles.leverageInput}
-                                style={{ maxWidth: '150px' }}
+                                style={{maxWidth: '150px'}}
                             />
                         </CCol>
-                    </CRow>
-                    <CRow className="mb-3 align-items-center">
+                    )}
+                </CRow>
+                <CRow className="mb-3 align-items-center">
+                    <CCol xs="auto">
+                        <CFormSwitch label="Entry Price" id="entrySwitch"
+                                     onChange={handleToggleChange(setEntryEnabled, setEntryPrice)}/>
+                    </CCol>
+                    {entryEnabled && (
                         <CCol xs="auto">
-                            <CFormSwitch label="Take Profit" id="tpSwitch" onChange={handleToggleChange(setTpEnabled, setTpPrice)} />
+                            <CFormInput
+                                type="number"
+                                value={entryPrice}
+                                step={0.0001}
+                                onChange={handleChange(setEntryPrice)}
+                                className={styles.leverageInput}
+                                style={{maxWidth: '150px'}}
+                            />
                         </CCol>
-                        {tpEnabled && (
-                            <CCol xs="auto">
-                                <CFormInput
-                                    type="number"
-                                    value={tpPrice}
-                                    step={0.0001}
-                                    onChange={handleChange(setTpPrice)}
-                                    className={styles.leverageInput}
-                                    style={{ maxWidth: '150px' }}
-                                />
-                            </CCol>
-                        )}
-                    </CRow>
-                    <CRow className="mb-3 align-items-center">
-                        <CCol xs="auto">
-                            <CFormSwitch label="Entry Price" id="entrySwitch" onChange={handleToggleChange(setEntryEnabled, setEntryPrice)} />
-                        </CCol>
-                        {entryEnabled && (
-                            <CCol xs="auto">
-                                <CFormInput
-                                    type="number"
-                                    value={entryPrice}
-                                    step={0.0001}
-                                    onChange={handleChange(setEntryPrice)}
-                                    className={styles.leverageInput}
-                                    style={{ maxWidth: '150px' }}
-                                />
-                            </CCol>
-                        )}
-                    </CRow>
-                </CListGroupItem>
+                    )}
+                </CRow>
                 {!isLongEnabled() && !isShortEnabled() && <CAlert color="danger">
                     Please provide valid data!
 
@@ -271,23 +293,25 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                     </ul>
                 </CAlert>}
 
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-                    <CCard textColor={'info'} className={`mb-3 border-info`} style={{ minWidth: '38rem' }}>
-                        <CCardHeader>Enter</CCardHeader>
+                <div className="d-flex justify-content-center align-items-center" style={{minHeight: '200px'}}>
+                    <CCard textColor={'info'} className={`mb-3 border-info`} style={{minWidth: '38rem'}}>
+                        <CCardHeader>Create Order</CCardHeader>
                         <CCardBody>
-                            <CCardText>
-                                <CListGroupItem>
-                                    <CRow className="mb-3 align-items-center">
-                                        <CCol className="d-flex justify-content-center">
-                                            <CButton color="danger" size="lg" disabled={!isShortEnabled()} style={{cursor: "pointer"}}>Short</CButton>
-                                        </CCol>
-                                        <CCol className="d-flex justify-content-center">
-                                            <CButton color="success" size="lg" disabled={!isLongEnabled()} style={{cursor: "pointer"}}>Long</CButton>
-                                        </CCol>
-                                    </CRow>
-                                    <CRow className="mb-3 align-items-center">
-                                        <CCol className="d-flex justify-content-center">
-                                            {isShortEnabled() && <span>
+                            <CRow className="mb-3 align-items-center">
+                                <CCol className="d-flex justify-content-center">
+                                    <CButton color="danger" size="lg" onClick={createShortOrder}
+                                             disabled={!isShortEnabled()}
+                                             style={{cursor: "pointer"}}>Short</CButton>
+                                </CCol>
+                                <CCol className="d-flex justify-content-center">
+                                    <CButton color="success" size="lg" onClick={createLongOrder}
+                                             disabled={!isLongEnabled()}
+                                             style={{cursor: "pointer"}}>Long</CButton>
+                                </CCol>
+                            </CRow>
+                            <CRow className="mb-3 align-items-center">
+                                <CCol className="d-flex justify-content-center">
+                                    {isShortEnabled() && <span>
                                                 <h5>Estimated order params: {symbolName}</h5>
                                                 <CListGroup flush>
                                                     <CListGroupItem><strong>Entry Price:</strong> {getEstimatedEntryPrice('short')}</CListGroupItem>
@@ -296,9 +320,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                                                     <CListGroupItem><strong>Stop Loss Pip:</strong> {getEstimatedSlPip('short')}</CListGroupItem>
                                                     <CListGroupItem><strong>Take Profit Pip:</strong> {getEstimatedTpPip('short')}</CListGroupItem>
                                             </CListGroup></span>}
-                                        </CCol>
-                                        <CCol className="d-flex justify-content-center">
-                                            {isLongEnabled() && <span>
+                                </CCol>
+                                <CCol className="d-flex justify-content-center">
+                                    {isLongEnabled() && <span>
                                                 <h5>Estimated order params: {symbolName}</h5>
                                                 <CListGroup flush>
                                                     <CListGroupItem><strong>Entry Price:</strong> {getEstimatedEntryPrice('long')}</CListGroupItem>
@@ -307,15 +331,70 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({ symbolName }) => {
                                                     <CListGroupItem><strong>Stop Loss Pip:</strong> {getEstimatedSlPip('long')}</CListGroupItem>
                                                     <CListGroupItem><strong>Take Profit Pip: </strong> {getEstimatedTpPip('long')}</CListGroupItem>
                                             </CListGroup></span>}
-                                        </CCol>
-                                    </CRow>
-                                </CListGroupItem>
-                            </CCardText>
+                                </CCol>
+                            </CRow>
                         </CCardBody>
                     </CCard>
                 </div>
+
+                {tradeResult && (
+                    <div className="d-flex justify-content-center align-items-center" style={{minHeight: '200px'}}>
+                        <CCard textBgColor={tradeResult?.comment === "Request executed" ? "success" : "danger"} textColor={"white"}
+                               className={`mb-3 border-info`} style={{minWidth: '38rem'}}>
+                            <CCardHeader>Order Creation Result</CCardHeader>
+                            <CCardBody>
+                                <CRow>
+                                    <CCol>
+                                        <strong>Execution Date:</strong> {tradeResult.executionDate}
+                                    </CCol>
+                                </CRow>
+                                <CRow>
+                                    <CCol>
+                                        <strong>Symbol:</strong> {tradeResult.symbol}
+                                    </CCol>
+                                    <CCol>
+                                        <strong>Status:</strong> {tradeResult.comment}
+                                    </CCol>
+                                </CRow>
+                                <CRow>
+                                    <CCol>
+                                        <strong>Entry Price:</strong> {tradeResult.entryPrice}
+                                    </CCol>
+                                    <CCol>
+                                        <strong>Volume:</strong> {tradeResult.volume}
+                                    </CCol>
+                                </CRow>
+                                <CRow>
+                                    <CCol>
+                                        <strong>SL Price:</strong> {tradeResult.slPrice}
+                                    </CCol>
+                                    <CCol>
+                                        <strong>TP Price:</strong> {tradeResult.tpPrice}
+                                    </CCol>
+                                </CRow>
+                                <CRow>
+                                    <CCol>
+                                        <strong>Money at Risk:</strong> {tradeResult.moneyAtRisk}
+                                    </CCol>
+                                    <CCol>
+                                        <strong>TP Pip Value:</strong> {tradeResult.tpPipValue}
+                                    </CCol>
+                                </CRow>
+                                <CRow>
+                                    <CCol>
+                                        <strong>SL Pip Value:</strong> {tradeResult.slPipValue}
+                                    </CCol>
+                                    <CCol>
+                                        <strong>Spread:</strong> {tradeResult.spread}
+                                    </CCol>
+                                </CRow>
+                            </CCardBody>
+                        </CCard>
+                    </div>)}
+
             </CCardBody>
         </CCard>
+
     );
 };
 

@@ -1,33 +1,8 @@
 'use client'
 
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardFooter,
-    CCardGroup,
-    CCardHeader,
-    CCardImage,
-    CCardLink,
-    CCardSubtitle,
-    CCardText,
-    CCardTitle,
-    CCol,
-    CListGroup,
-    CListGroupItem,
-    CNav,
-    CNavItem,
-    CNavLink,
-    CRow,
-    CToast,
-    CToastBody,
-} from '@coreui/react-pro';
-import { DocsExample } from '@/components';
-
-import ReactImg from '@/public/images/react.jpg';
-import React, { useEffect, useRef, useState } from "react";
-import { SETTINGS_LOCAL_STORAGE } from "@/app/common/constants";
+import {CAlert, CCard, CCardBody, CCardHeader, CCol, CRow, CToast, CToastBody,} from '@coreui/react-pro';
+import React, {useEffect, useRef, useState} from "react";
+import {SETTINGS_LOCAL_STORAGE} from "@/app/common/constants";
 import SymbolCard from "@/app/(views)/trade/components/symbolCard";
 import SymbolInfoCard from "@/app/(views)/trade/components/symbolInfoCard";
 import ExecuteTradeCard from "@/app/(views)/trade/components/executeTradeCard";
@@ -88,7 +63,7 @@ const Trade = () => {
                             <>
                                 <h5>Forex symbols:</h5>
                                 <CRow>
-                                    {renderSymbols(formData.forex)}
+                                    {renderSymbols(formData?.forex)}
                                 </CRow>
                             </>
                         )}
@@ -97,7 +72,7 @@ const Trade = () => {
                             <>
                                 <h5 style={{marginTop: "15px"}}>Indices symbols:</h5>
                                 <CRow>
-                                    {renderSymbols(formData.indices)}
+                                    {renderSymbols(formData?.indices)}
                                 </CRow>
                             </>
                         )}
@@ -106,7 +81,7 @@ const Trade = () => {
                             <>
                                 <h5 style={{marginTop: "15px"}}>Commodities symbols:</h5>
                                 <CRow>
-                                    {renderSymbols(formData.commodities)}
+                                    {renderSymbols(formData?.commodities)}
                                 </CRow>
                             </>
                         )}
@@ -115,21 +90,20 @@ const Trade = () => {
                             isSymbolArrayEmpty(formData?.indices) &&
                             isSymbolArrayEmpty(formData?.commodities) && (
                                 <CCol>
-                                    <CCardText>
-                                        <CAlert color="danger">
-                                            Please add at least one symbol in the <Link href="/settings">settings page</Link>.
-                                        </CAlert>
-                                    </CCardText>
+                                    <CAlert color="danger">
+                                        Please add at least one symbol in the <Link href="/settings">settings
+                                        page</Link>.
+                                    </CAlert>
                                 </CCol>
                             )}
                     </CCardBody>
                 </CCard>
             </CCol>
             {selectedSymbol && <CCol xs={12}>
-                <SymbolInfoCard symbolName={selectedSymbol} />
+                <SymbolInfoCard symbolName={selectedSymbol}/>
             </CCol>}
             {selectedSymbol && <CCol xs={12}>
-                <ExecuteTradeCard symbolName={selectedSymbol} />
+                <ExecuteTradeCard symbolName={selectedSymbol}/>
             </CCol>}
         </CRow>
     );
