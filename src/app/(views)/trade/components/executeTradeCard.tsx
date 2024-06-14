@@ -74,7 +74,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
     const createShortOrder = async () => {
         try {
             const tpParam = tpEnabled ? tpPrice : 0;
-            const entryParam = tpEnabled ? entryPrice : 0;
+            const entryParam = entryEnabled ? entryPrice : 0;
             const data = await tradeService.createShortOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
