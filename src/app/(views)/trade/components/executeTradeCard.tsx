@@ -73,15 +73,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createShortOrder = async () => {
         try {
-            let tpParam = tpPrice;
-            let entryParam = entryPrice;
-            if (!tpEnabled) {
-                tpParam = 0;
-            }
-            if (!entryEnabled) {
-                entryParam = 0;
-            }
-            const data = await tradeService.createShortOrder(symbolName, slPrice, tpPrice, entryParam, ratio, maxSpread, risk);
+            const tpParam = tpEnabled ? tpPrice : 0;
+            const entryParam = tpEnabled ? entryPrice : 0;
+            const data = await tradeService.createShortOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
             console.error('Failed to create short order', error);
@@ -405,7 +399,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                                         <strong>Entry Price:</strong> {tradeResult.entryPrice}
                                     </CCol>
                                     <CCol>
-                                        <strong>Volume:</strong> {tradeResult.volume}
+                                        <strong>Volume:</strong> {tradeResult.volume} Lot
                                     </CCol>
                                 </CRow>
                                 <CRow>
@@ -421,15 +415,15 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                                         <strong>Money at Risk:</strong> {tradeResult.moneyAtRisk.toFixed(2)}
                                     </CCol>
                                     <CCol>
-                                        <strong>TP Pip Value:</strong> {tradeResult.tpPipValue.toFixed(2)}
+                                        <strong>TP Pip Value:</strong> {tradeResult.tpPipValue.toFixed(2)} Pip
                                     </CCol>
                                 </CRow>
                                 <CRow>
                                     <CCol>
-                                        <strong>SL Pip Value:</strong> {tradeResult.slPipValue.toFixed(2)}
+                                        <strong>SL Pip Value:</strong> {tradeResult.slPipValue.toFixed(2)} Pip
                                     </CCol>
                                     <CCol>
-                                        <strong>Spread:</strong> {tradeResult.spread}
+                                        <strong>Spread:</strong> {tradeResult.spread} Pip
                                     </CCol>
                                 </CRow>
                             </CCardBody>
