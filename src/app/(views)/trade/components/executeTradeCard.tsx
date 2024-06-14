@@ -49,7 +49,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createLongOrder = async () => {
         try {
-            const data = await tradeService.createLongOrder(symbolName, slPrice, tpPrice, entryPrice);
+            const tpPriceInput = tpEnabled ? tpPrice : 0;
+            const entryPriceInput = entryEnabled ? entryPrice : 0;
+            const data = await tradeService.createLongOrder(symbolName, slPrice, tpPriceInput, entryPriceInput);
             setTradeResult(data);
         } catch (error) {
             console.error('Failed to create long order', error);
@@ -58,7 +60,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createShortOrder = async () => {
         try {
-            const data = await tradeService.createShortOrder(symbolName, slPrice, tpPrice, entryPrice);
+            const tpPriceInput = tpEnabled ? tpPrice : 0;
+            const entryPriceInput = entryEnabled ? entryPrice : 0;
+            const data = await tradeService.createShortOrder(symbolName, slPrice, tpPriceInput, entryPriceInput);
             setTradeResult(data);
         } catch (error) {
             console.error('Failed to create short order', error);
