@@ -62,14 +62,8 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createLongOrder = async () => {
         try {
-            let tpParam = tpPrice;
-            let entryParam = entryPrice;
-            if (!tpEnabled) {
-                tpParam = 0;
-            }
-            if (!entryEnabled) {
-                entryParam = 0;
-            }
+            const tpParam = tpEnabled ? tpPrice : 0
+            const entryParam = entryEnabled ? entryPrice : 0;
             const data = await tradeService.createLongOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
