@@ -6,12 +6,15 @@ import { TradeResult } from './TradeResult';
 const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
 const tradeService = {
-    createLongOrder: async (symbol: string, slPrice: number, tpPrice: number, entryPrice: number): Promise<TradeResult> => {
+    createLongOrder: async (symbol: string, slPrice: number, tpPrice: number, entryPrice: number, ratio: number, spread: number, risk: number): Promise<TradeResult> => {
         try {
             const response = await axios.post<TradeResult>(`${API_BASE_URL}/trade/long/${symbol}`, {
                 slPrice,
                 tpPrice,
-                entryPrice
+                entryPrice,
+                ratio,
+                spread,
+                risk
             });
             return response.data;
         } catch (error) {
@@ -20,12 +23,15 @@ const tradeService = {
         }
     },
 
-    createShortOrder: async (symbol: string, slPrice: number, tpPrice: number, entryPrice: number): Promise<TradeResult> => {
+    createShortOrder: async (symbol: string, slPrice: number, tpPrice: number, entryPrice: number, ratio: number, spread: number, risk: number): Promise<TradeResult> => {
         try {
             const response = await axios.post<TradeResult>(`${API_BASE_URL}/trade/short/${symbol}`, {
                 slPrice,
                 tpPrice,
-                entryPrice
+                entryPrice,
+                ratio,
+                spread,
+                risk
             });
             return response.data;
         } catch (error) {

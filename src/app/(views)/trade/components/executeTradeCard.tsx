@@ -34,6 +34,19 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
     const [entryEnabled, setEntryEnabled] = useState(false);
     const [priceData, setPriceData] = useState<Price | null>(null);
     const [tradeResult, setTradeResult] = useState<TradeResult | null>(null);
+    const [ratio, setRatio] = useState<number>(3);
+    const [maxSpread, setMaxSpread] = useState<number>(1);
+    const [risk, setRisk] = useState<number>(1);
+
+    useEffect(() => {
+        const savedFormData = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+        if (savedFormData) {
+            const settingsData = JSON.parse(savedFormData);
+            setRatio(settingsData?.ratio);
+            setMaxSpread(settingsData?.spread);
+            setRisk(settingsData?.risk);
+        }
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,9 +62,15 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createLongOrder = async () => {
         try {
-            const tpPriceInput = tpEnabled ? tpPrice : 0;
-            const entryPriceInput = entryEnabled ? entryPrice : 0;
-            const data = await tradeService.createLongOrder(symbolName, slPrice, tpPriceInput, entryPriceInput);
+            let tpParam = tpPrice;
+            let entryParam = entryPrice;
+            if (!tpEnabled) {
+                tpParam = 0;
+            }
+            if (!entryEnabled) {
+                entryParam = 0;
+            }
+            const data = await tradeService.createLongOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
             console.error('Failed to create long order', error);
@@ -60,9 +79,15 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createShortOrder = async () => {
         try {
-            const tpPriceInput = tpEnabled ? tpPrice : 0;
-            const entryPriceInput = entryEnabled ? entryPrice : 0;
-            const data = await tradeService.createShortOrder(symbolName, slPrice, tpPriceInput, entryPriceInput);
+            let tpParam = tpPrice;
+            let entryParam = entryPrice;
+            if (!tpEnabled) {
+                tpParam = 0;
+            }
+            if (!entryEnabled) {
+                entryParam = 0;
+            }
+            const data = await tradeService.createShortOrder(symbolName, slPrice, tpPrice, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
             console.error('Failed to create short order', error);
