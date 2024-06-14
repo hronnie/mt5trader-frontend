@@ -410,23 +410,23 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                                 </CRow>
                                 <CRow>
                                     <CCol>
-                                        <strong>SL Price:</strong> {tradeResult.slPrice}
+                                        <strong>SL Price:</strong> {tradeResult.slPrice.toFixed(5)}
                                     </CCol>
                                     <CCol>
-                                        <strong>TP Price:</strong> {tradeResult.tpPrice}
-                                    </CCol>
-                                </CRow>
-                                <CRow>
-                                    <CCol>
-                                        <strong>Money at Risk:</strong> {tradeResult.moneyAtRisk}
-                                    </CCol>
-                                    <CCol>
-                                        <strong>TP Pip Value:</strong> {tradeResult.tpPipValue}
+                                        <strong>TP Price:</strong> {tradeResult.tpPrice.toFixed(5)}
                                     </CCol>
                                 </CRow>
                                 <CRow>
                                     <CCol>
-                                        <strong>SL Pip Value:</strong> {tradeResult.slPipValue}
+                                        <strong>Money at Risk:</strong> {tradeResult.moneyAtRisk.toFixed(2)}
+                                    </CCol>
+                                    <CCol>
+                                        <strong>TP Pip Value:</strong> {tradeResult.tpPipValue.toFixed(2)}
+                                    </CCol>
+                                </CRow>
+                                <CRow>
+                                    <CCol>
+                                        <strong>SL Pip Value:</strong> {tradeResult.slPipValue.toFixed(2)}
                                     </CCol>
                                     <CCol>
                                         <strong>Spread:</strong> {tradeResult.spread}
