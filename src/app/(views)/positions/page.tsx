@@ -1,8 +1,9 @@
 'use client'
 
-import { CCard, CCardBody, CCardHeader, CRow, CCol, CBadge, CButton, CCollapse, CSmartTable } from '@coreui/react-pro';
+import { CCard, CCardBody, CCardHeader, CBadge, CButton, CCollapse, CSmartTable } from '@coreui/react-pro';
 import React, { useEffect, useState } from "react";
-import { getPositions } from '@/services/positionsService';
+import { closePositions, getPositions } from '@/services/positionsService';
+import { TradePosition } from '@/interfaces';
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
@@ -44,7 +45,10 @@ const Positions = () => {
     const getOrderTypeBadge = (orderType: string) => {
         return orderType.includes('Sell') ? 'danger' : 'success';
     }
-    
+
+    const formatNumber = (num: number) => {
+        return num.toFixed(4);
+    }
 
     const toggleDetails = (index: number) => {
         const position = details.indexOf(index);
@@ -57,6 +61,10 @@ const Positions = () => {
         setDetails(newDetails);
     }
 
+    const handlePositionClose = async (ticket: number) => {
+        const closeResult = await closePositions(ticket);
+    }
+
     return (
         <CCard className="mb-4">
             <CCardHeader>
@@ -65,7 +73,6 @@ const Positions = () => {
             <CCardBody>
                 <CSmartTable
                     activePage={1}
-                    cleaner
                     clickableRows
                     columns={columns}
                     columnFilter
@@ -85,6 +92,15 @@ const Positions = () => {
                             <td>
                                 <CBadge color={getOrderTypeBadge(item.type)}>{item.type}</CBadge>
                             </td>
+                        ),
+                        price: (item: TradePosition) => (
+                            <td>{formatNumber(item.price)}</td>
+                        ),
+                        sl: (item: TradePosition) => (
+                            <td>{formatNumber(item.sl)}</td>
+                        ),
+                        tp: (item: TradePosition) => (
+                            <td>{formatNumber(item.tp)}</td>
                         ),
                         show_details: (item: TradePosition) => {
                             return (
@@ -109,10 +125,7 @@ const Positions = () => {
                                     <CCardBody className="p-3">
                                         <h4>{item.symbol}</h4>
                                         <p className="text-muted">Position opened at: {item.time}</p>
-                                        <CButton size="sm" color="info">
-                                            Trade Settings
-                                        </CButton>
-                                        <CButton size="sm" color="danger" className="ml-1">
+                                        <CButton size="sm" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)}>
                                             Close Trade
                                         </CButton>
                                     </CCardBody>
@@ -120,9 +133,7 @@ const Positions = () => {
                             )
                         },
                     }}
-                    selectable
                     sorterValue={{ column: 'profit', state: 'asc' }}
-                    tableFilter
                     tableProps={{
                         className: 'add-this-class',
                         responsive: true,
