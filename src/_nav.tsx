@@ -35,6 +35,12 @@ const _nav = [
         icon: <CIcon icon={cilDrop} customClassName="nav-icon"/>,
     },
     {
+        component: CNavItem,
+        name: 'Positions',
+        href: '/positions',
+        icon: <CIcon icon={cilDrop} customClassName="nav-icon"/>,
+    },
+    {
         component: CNavTitle,
         name: 'Settings',
     },
