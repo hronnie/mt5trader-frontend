@@ -1,15 +1,43 @@
 'use client'
 
-import { CCard, CCardBody, CCardHeader, CBadge, CButton, CCollapse, CSmartTable } from '@coreui/react-pro';
+import {
+    CCard,
+    CCardBody,
+    CCardHeader,
+    CBadge,
+    CButton,
+    CCollapse,
+    CSmartTable,
+    CCardTitle,
+    CPlaceholder
+} from '@coreui/react-pro';
 import React, { useEffect, useState } from "react";
 import { closePositions, getPositions } from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
+import CIcon from "@coreui/icons-react";
+import {cilCloudDownload, cilReload} from "@coreui/icons";
+import {getSymbolInfo} from "@/services/newsService";
+import {getPriceInfo} from "@/services/priceService";
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
     const [details, setDetails] = useState<number[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
+
 
     const refreshPositions = async () => {
+        setLoading(true);
+        try {
+            const positions = await getPositions();
+            setPositions(positions);
+            setError(null);
+        } catch (error: any) {
+            setError(error);
+            setPositions([]);
+        } finally {
+            setLoading(false);
+        }
         const positions = await getPositions();
         setPositions(positions);
     }
@@ -65,19 +93,37 @@ const Positions = () => {
         const closeResult = await closePositions(ticket);
     }
 
+    if (loading)
+        return <CCard
+        >
+            <CCardHeader><strong>Active Positions (Loading...)</strong></CCardHeader>
+            <CCardBody>
+                <CCardTitle></CCardTitle>
+                <CPlaceholder as="p" animation="wave">
+                    <CPlaceholder xs={12}/>
+                    <CPlaceholder xs={12}/>
+                    <CPlaceholder xs={12}/>
+                    <CPlaceholder xs={12}/>
+                </CPlaceholder>
+            </CCardBody>
+        </CCard>;
+
+    if (error) return <div>Error: {error.message}</div>;
+
     return (
         <CCard className="mb-4">
             <CCardHeader>
                 <strong>Active positions</strong>
+                <CButton color="primary" className="float-end" onClick={refreshPositions}>
+                    <CIcon icon={cilReload}/>
+                </CButton>
             </CCardHeader>
             <CCardBody>
                 <CSmartTable
                     activePage={1}
-                    clickableRows
                     columns={columns}
                     columnFilter
                     columnSorter
-                    footer
                     items={positions}
                     itemsPerPageSelect
                     itemsPerPage={5}
@@ -85,7 +131,7 @@ const Positions = () => {
                     scopedColumns={{
                         profit: (item: TradePosition) => (
                             <td>
-                                <CBadge color={getProfitBadge(item.profit)}>{item.profit}</CBadge>
+                                <CBadge color={getProfitBadge(item.profit)}>{formatNumber(item.profit)}</CBadge>
                             </td>
                         ),
                         type: (item: TradePosition) => (
@@ -114,7 +160,7 @@ const Positions = () => {
                                             toggleDetails(item.ticket)
                                         }}
                                     >
-                                        {details.includes(item.ticket) ? 'Hide' : 'Show'}
+                                        {details.includes(item.ticket) ? 'Hide' : 'Details'}
                                     </CButton>
                                 </td>
                             )
