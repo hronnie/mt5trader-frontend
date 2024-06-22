@@ -9,9 +9,9 @@ import {
     CCollapse,
     CSmartTable,
     CCardTitle,
-    CPlaceholder
+    CPlaceholder, CToast, CToastBody, CToaster
 } from '@coreui/react-pro';
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { closePositions, getPositions } from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
 import CIcon from "@coreui/icons-react";
@@ -24,9 +24,21 @@ const Positions = () => {
     const [details, setDetails] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-
+    const [toast, addToast] = useState(0)
+    const toaster = useRef();
+    const successToast = (
+        <CToast color="success">
+            <CToastBody>You successfully closed the position!</CToastBody>
+        </CToast>
+    )
+    const errorToast = (
+        <CToast color="danger">
+            <CToastBody>There was an error during closing the position!</CToastBody>
+        </CToast>
+    )
 
     const refreshPositions = async () => {
+        addToast(0);
         setLoading(true);
         try {
             const positions = await getPositions();
@@ -90,7 +102,14 @@ const Positions = () => {
     }
 
     const handlePositionClose = async (ticket: number) => {
-        const closeResult = await closePositions(ticket);
+        try {
+            const closeResult = await closePositions(ticket);
+            addToast(successToast);
+        } catch (error) {
+            console.error('Error creating long order', error);
+            addToast(errorToast);
+            throw error;
+        }
     }
 
     if (loading)
@@ -190,6 +209,7 @@ const Positions = () => {
                         className: 'align-middle'
                     }}
                 />
+                <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
             </CCardBody>
         </CCard>
     );

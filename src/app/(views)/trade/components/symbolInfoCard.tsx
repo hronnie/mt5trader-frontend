@@ -1,5 +1,6 @@
-'use client'
+'use client';
 
+import React, { useEffect, useState } from "react";
 import {
     CCard,
     CCardBody,
@@ -11,41 +12,22 @@ import {
     CTableDataCell,
     CTableHead,
     CTableHeaderCell,
-    CTableRow
+    CTableRow,
 } from "@coreui/react-pro";
-import React, {useEffect, useState} from "react";
-import {getSymbolInfo} from "@/services/newsService";
-import {getPriceInfo} from "@/services/priceService";
-import {format, parseISO} from 'date-fns';
-import {Price} from "@/app/interfaces/priceInterface";
+import { getSymbolInfo } from "@/services/newsService";
+import { getPriceInfo } from "@/services/priceService";
+import { Price } from "@/app/interfaces/priceInterface";
+import News, {NewsInterface} from "@/app/common/components/News";
 
 interface SymbolCardProps {
     symbolName: string;
 }
 
-interface News {
-    date: string;
-    country: string;
-    title: string;
-    impact: string;
-}
-
-const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
-    const [newsData, setNewsData] = useState<News[] | null>(null);
+const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
+    const [newsData, setNewsData] = useState<NewsInterface[] | null>(null);
     const [priceData, setPriceData] = useState<Price | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-
-    const formatDate = (dateString: string) => {
-        const date = parseISO(dateString);
-        const formattedDate = format(date, 'PPP'); // Format date part
-        return formattedDate;
-    }
-    const formatTime = (dateString: string) => {
-        const date = parseISO(dateString);
-        const formattedTime = format(date, 'p'); // Format time part
-        return formattedTime;
-    }
 
     useEffect(() => {
         let isMounted = true; // Track if component is still mounted
@@ -80,120 +62,56 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
         };
     }, [symbolName]); // Add symbolName as a dependency
 
-    const getImpactStyles = (impact: string) => {
-        switch (impact) {
-            case 'High':
-                return {backgroundColor: '#ef376e', color: 'white'};
-            case 'Medium':
-                return {backgroundColor: '#ffcc00', color: '#000000'};
-            case 'Low':
-            default:
-                return {backgroundColor: '#f3f4f7', color: '#000000'};
-        }
-    }
-
     if (loading)
-        return <CCard
-            textColor={"primary"}
-            className={`mb-3 border-primary`}
-            style={{}}
-        >
-            <CCardHeader>{symbolName} Info</CCardHeader>
-            <CCardBody>
-                <CCardTitle>News info</CCardTitle>
-                <CPlaceholder as="p" animation="wave">
-                    <CPlaceholder xs={12}/>
-                    <CPlaceholder xs={12}/>
-                    <CPlaceholder xs={12}/>
-                    <CPlaceholder xs={12}/>
-                </CPlaceholder>
-            </CCardBody>
-        </CCard>;
+        return (
+            <CCard textColor={"primary"} className={`mb-3 border-primary`} style={{}}>
+                <CCardHeader>{symbolName} Info</CCardHeader>
+                <CCardBody>
+                    <CCardTitle>News info</CCardTitle>
+                    <CPlaceholder as="p" animation="wave">
+                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12} />
+                    </CPlaceholder>
+                </CCardBody>
+            </CCard>
+        );
 
     if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <CCard
-            textColor={"primary"}
-            className={`mb-3 border-primary`}
-            style={{}}
-        >
+        <CCard textColor={"primary"} className={`mb-3 border-primary`} style={{}}>
             <CCardHeader>{symbolName} Info</CCardHeader>
             <CCardBody>
                 <CCardTitle>News info</CCardTitle>
-                {
-                    !newsData || newsData.length === 0 ? (
-                        <div>I couldn't find any news for {symbolName}</div>
-                    ) : (
-                        <CTable align="middle" small>
-                            <CTableHead>
-                                <CTableRow>
-                                    <CTableHeaderCell scope="col" className="w-25">
-                                        Date
-                                    </CTableHeaderCell>
-                                    <CTableHeaderCell scope="col" className="w-25">
-                                        Country
-                                    </CTableHeaderCell>
-                                    <CTableHeaderCell scope="col" className="w-25">
-                                        Impact
-                                    </CTableHeaderCell>
-                                    <CTableHeaderCell scope="col" className="w-25">
-                                        Title
-                                    </CTableHeaderCell>
-                                </CTableRow>
-                            </CTableHead>
-
-                            <CTableBody>
-                                {newsData.map((news: News, index: number) => (
-                                    <CTableRow key={index} color={new Date(news?.date) < new Date() ? "dark" : ""}>
-                                        <CTableDataCell>
-                                            {formatDate(news.date)} <strong>{formatTime(news.date)}</strong>
-                                        </CTableDataCell>
-                                        <CTableDataCell>
-                                            {news.country}
-                                        </CTableDataCell>
-                                        <CTableDataCell style={getImpactStyles(news.impact)}>
-                                            {news.impact}
-                                        </CTableDataCell>
-                                        <CTableDataCell>
-                                            {news.title}
-                                        </CTableDataCell>
-                                    </CTableRow>
-                                ))}
-                            </CTableBody>
-                        </CTable>
-                    )
-                }
+                <News newsData={newsData} />
                 <CCardTitle>Price info</CCardTitle>
-                {priceData && <CTable align="middle" small>
-                    <CTableHead>
-                        <CTableRow>
-                            <CTableHeaderCell scope="col" className="w-25">
-                                Bid Price
-                            </CTableHeaderCell>
-                            <CTableHeaderCell scope="col" className="w-25">
-                                Ask Price
-                            </CTableHeaderCell>
-                            <CTableHeaderCell scope="col" className="w-25">
-                                Current Spread
-                            </CTableHeaderCell>
-                        </CTableRow>
-                    </CTableHead>
+                {priceData && (
+                    <CTable align="middle" small>
+                        <CTableHead>
+                            <CTableRow>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Bid Price
+                                </CTableHeaderCell>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Ask Price
+                                </CTableHeaderCell>
+                                <CTableHeaderCell scope="col" className="w-25">
+                                    Current Spread
+                                </CTableHeaderCell>
+                            </CTableRow>
+                        </CTableHead>
 
-                    <CTableBody>
-                        <CTableRow>
-                            <CTableDataCell>
-                                {priceData.bidPrice}
-                            </CTableDataCell>
-                            <CTableDataCell>
-                                {priceData.askPrice}
-                            </CTableDataCell>
-                            <CTableDataCell>
-                                {priceData.spread}
-                            </CTableDataCell>
-                        </CTableRow>
-                    </CTableBody>
-                </CTable>}
+                        <CTableBody>
+                            <CTableRow>
+                                <CTableDataCell>{priceData.bidPrice}</CTableDataCell>
+                                <CTableDataCell>{priceData.askPrice}</CTableDataCell>
+                                <CTableDataCell>{priceData.spread}</CTableDataCell>
+                            </CTableRow>
+                        </CTableBody>
+                    </CTable>
+                )}
             </CCardBody>
         </CCard>
     );
