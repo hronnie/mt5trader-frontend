@@ -1,5 +1,5 @@
 import React, {ElementType} from 'react'
-import {cilDrop, cilGem, cilSpeedometer,} from '@coreui/icons'
+import {cilChartLine, cilDrop, cilGem, cilIndentIncrease, cilSettings, cilSpeedometer,} from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {CNavItem, CNavTitle} from '@coreui/react-pro'
 
@@ -32,13 +32,13 @@ const _nav = [
         component: CNavItem,
         name: 'Trade',
         href: '/trade',
-        icon: <CIcon icon={cilDrop} customClassName="nav-icon"/>,
+        icon: <CIcon icon={cilChartLine} customClassName="nav-icon"/>,
     },
     {
         component: CNavItem,
         name: 'Positions',
         href: '/positions',
-        icon: <CIcon icon={cilDrop} customClassName="nav-icon"/>,
+        icon: <CIcon icon={cilIndentIncrease} customClassName="nav-icon"/>,
     },
     {
         component: CNavTitle,
@@ -48,7 +48,7 @@ const _nav = [
         component: CNavItem,
         name: 'Settings',
         href: '/settings',
-        icon: <CIcon icon={cilGem} customClassName="nav-icon"/>,
+        icon: <CIcon icon={cilSettings} customClassName="nav-icon"/>,
     },
 
 ]
