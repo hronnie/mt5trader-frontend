@@ -12,7 +12,7 @@ import {
     CPlaceholder, CToast, CToastBody, CToaster, CRow, CCol, CFormInput
 } from '@coreui/react-pro';
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
-import {closePositions, getPositions, modifyPositions} from '@/services/positionsService';
+import {breakEvenPositions, closePositions, getPositions, modifyPositions} from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
 import CIcon from "@coreui/icons-react";
 import {cilCloudDownload, cilReload} from "@coreui/icons";
@@ -133,6 +133,18 @@ const Positions = () => {
         return isSlEmpty && isTpEmpty;
     }
 
+    const handleBreakEven = async (ticket: number) => {
+        try {
+            const breakEvenResult = await breakEvenPositions(ticket);
+            await refreshPositions();
+            addToast(successToast);
+        } catch (error) {
+            await refreshPositions();
+            addToast(errorToast);
+            throw error;
+        }
+    }
+
     const handleModifyPosition = async (ticket: number) => {
         const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
         try {
@@ -145,6 +157,11 @@ const Positions = () => {
             addToast(errorToast);
             throw error;
         }
+    }
+
+    const handleBreakEvenDisabled = (profit: number) => {
+        debugger;
+        return profit < 10;
     }
 
     const handleChange = (ticket: number, field: 'sl' | 'tp') => (event: BaseSyntheticEvent) => {
@@ -242,6 +259,17 @@ const Positions = () => {
                                             <CCol className="d-flex">
                                                 <CButton size="lg" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)} style={{color: "white"}}>
                                                     Close Trade
+                                                </CButton>
+                                            </CCol>
+                                        </CRow>
+                                        <CRow className="mb-3 align-items-center">
+                                            <CCol className="d-flex">
+                                                <CButton size="lg" color="primary"
+                                                         className="ml-1"
+                                                         onClick={() => handleBreakEven(item.ticket)}
+                                                         disabled={handleBreakEvenDisabled(item.profit)}
+                                                         style={{color: "white"}}>
+                                                    Break Even
                                                 </CButton>
                                             </CCol>
                                         </CRow>
