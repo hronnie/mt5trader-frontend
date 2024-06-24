@@ -25,9 +25,8 @@ const Positions = () => {
     const [details, setDetails] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    const [toast, addToast] = useState(0)
-    const [sl, setSl] = useState(0)
-    const [tp, setTp] = useState(0)
+    const [toast, addToast] = useState(0);
+    const [positionSLTP, setPositionSLTP] = useState<{[key: number]: {sl: number, tp: number}}>({});
 
     const toaster = useRef();
     const successToast = (
@@ -41,12 +40,24 @@ const Positions = () => {
         </CToast>
     )
 
+    const initializePositionSLTP = (positions: TradePosition[]) => {
+        const initialSLTP: {[key: number]: {sl: number, tp: number}} = {};
+        positions.forEach(position => {
+            initialSLTP[position.ticket] = {
+                sl: position.sl,
+                tp: position.tp,
+            };
+        });
+        setPositionSLTP(initialSLTP);
+    };
+
     const refreshPositions = async () => {
         addToast(0);
         setLoading(true);
         try {
             const positions = await getPositions();
             setPositions(positions);
+            initializePositionSLTP(positions);
             setError(null);
         } catch (error: any) {
             setError(error);
@@ -54,8 +65,6 @@ const Positions = () => {
         } finally {
             setLoading(false);
         }
-        const positions = await getPositions();
-        setPositions(positions);
     }
 
     useEffect(() => {
@@ -118,7 +127,14 @@ const Positions = () => {
         }
     }
 
+    const handleModifyDisabled = (sl: number, tp: number): boolean => {
+        const isSlEmpty = !sl || sl === 0 || sl < 0;
+        const isTpEmpty = !tp || tp === 0 || tp < 0;
+        return isSlEmpty && isTpEmpty;
+    }
+
     const handleModifyPosition = async (ticket: number) => {
+        const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
         try {
             const modifyResult = await modifyPositions(ticket, sl, tp);
             await refreshPositions();
@@ -131,9 +147,15 @@ const Positions = () => {
         }
     }
 
-    const handleChange = (setter: Function) => (event: BaseSyntheticEvent) => {
-        const price = parseFloat(event.target.value);
-        setter(price)
+    const handleChange = (ticket: number, field: 'sl' | 'tp') => (event: BaseSyntheticEvent) => {
+        const value = parseFloat(event.target.value);
+        setPositionSLTP(prev => ({
+            ...prev,
+            [ticket]: {
+                ...prev[ticket],
+                [field]: value
+            }
+        }));
     }
 
     if (loading)
@@ -209,36 +231,38 @@ const Positions = () => {
                             )
                         },
                         details: (item: TradePosition) => {
+                            const { sl = item.slPrice, tp = item.tpPrice } = positionSLTP[item.ticket] || {};
+                            // @ts-ignore
                             return (
                                 <CCollapse visible={details.includes(item.ticket)}>
                                     <CCardBody className="p-3">
                                         <h4>{item.symbol}</h4>
                                         <p className="text-muted">Position opened at: {item.time}</p>
                                         <CRow className="mb-3 align-items-center">
-                                            <CCol className="d-flex justify-content-center">
-                                                <CButton size="sm" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)}>
+                                            <CCol className="d-flex">
+                                                <CButton size="lg" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)} style={{color: "white"}}>
                                                     Close Trade
                                                 </CButton>
                                             </CCol>
-                                            <CCol className="d-flex justify-content-center">
-                                                <CFormInput
+                                        </CRow>
+                                        <CRow className="mb-3 align-items-center">
+                                            <CCol className="d-flex">
+                                                <strong style={{marginTop: '10px', marginRight: '14px'}}>SL:</strong><CFormInput
                                                     type="number"
                                                     step={0.0001}
                                                     value={sl}
-                                                    onChange={handleChange(setSl)}
-                                                    className={styles.leverageInput}
-                                                    style={{maxWidth: '150px'}}
+                                                    onChange={handleChange(item.ticket, 'sl')}
+                                                    style={{maxWidth: '150px', marginRight: '8px'}}
                                                 />
-                                                <CFormInput
+                                                <strong style={{marginTop: '10px', marginRight: '14px'}}>TP:</strong><CFormInput
                                                     type="number"
                                                     step={0.0001}
                                                     value={tp}
-                                                    onChange={handleChange(setTp)}
-                                                    className={styles.leverageInput}
-                                                    style={{maxWidth: '150px'}}
+                                                    onChange={handleChange(item.ticket, 'tp')}
+                                                    style={{maxWidth: '150px', marginRight: '8px'}}
                                                 />
-                                                <CButton color="success" size="lg" onClick={() => handleModifyPosition(item.ticket)}
-                                                         style={{cursor: "pointer"}}>Modify</CButton>
+                                                <CButton color="primary" size="lg" onClick={() => handleModifyPosition(item.ticket)}
+                                                         style={{cursor: "pointer"}} disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
                                             </CCol>
                                         </CRow>
 
