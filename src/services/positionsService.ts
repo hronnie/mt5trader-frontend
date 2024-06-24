@@ -19,7 +19,17 @@ export const closePositions = async (ticket: number) => {
         const response = await axios.post(`${API_BASE_URL}/position/close/${ticket}`);
         return response.data;
     } catch (error) {
-        console.error('Error fetching info', error);
+        console.error('Error closing position', error);
+        throw error;
+    }
+};
+
+export const modifyPositions = async (ticket: number, sl: number, tp: number) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/position/modify/${ticket}`, {sl, tp});
+        return response.data;
+    } catch (error) {
+        console.error('Error modifying position', error);
         throw error;
     }
 };

@@ -9,15 +9,16 @@ import {
     CCollapse,
     CSmartTable,
     CCardTitle,
-    CPlaceholder, CToast, CToastBody, CToaster
+    CPlaceholder, CToast, CToastBody, CToaster, CRow, CCol, CFormInput
 } from '@coreui/react-pro';
-import React, {useEffect, useRef, useState} from "react";
-import { closePositions, getPositions } from '@/services/positionsService';
+import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
+import {closePositions, getPositions, modifyPositions} from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
 import CIcon from "@coreui/icons-react";
 import {cilCloudDownload, cilReload} from "@coreui/icons";
 import {getSymbolInfo} from "@/services/newsService";
 import {getPriceInfo} from "@/services/priceService";
+import styles from "@/app/(views)/settings/settings.module.css";
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
@@ -25,6 +26,9 @@ const Positions = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const [toast, addToast] = useState(0)
+    const [sl, setSl] = useState(0)
+    const [tp, setTp] = useState(0)
+
     const toaster = useRef();
     const successToast = (
         <CToast color="success">
@@ -104,12 +108,32 @@ const Positions = () => {
     const handlePositionClose = async (ticket: number) => {
         try {
             const closeResult = await closePositions(ticket);
+            await refreshPositions();
             addToast(successToast);
         } catch (error) {
             console.error('Error creating long order', error);
+            await refreshPositions();
             addToast(errorToast);
             throw error;
         }
+    }
+
+    const handleModifyPosition = async (ticket: number) => {
+        try {
+            const modifyResult = await modifyPositions(ticket, sl, tp);
+            await refreshPositions();
+            addToast(successToast);
+        } catch (error) {
+            console.error('Error creating long order', error);
+            await refreshPositions();
+            addToast(errorToast);
+            throw error;
+        }
+    }
+
+    const handleChange = (setter: Function) => (event: BaseSyntheticEvent) => {
+        const price = parseFloat(event.target.value);
+        setter(price)
     }
 
     if (loading)
@@ -190,9 +214,34 @@ const Positions = () => {
                                     <CCardBody className="p-3">
                                         <h4>{item.symbol}</h4>
                                         <p className="text-muted">Position opened at: {item.time}</p>
-                                        <CButton size="sm" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)}>
-                                            Close Trade
-                                        </CButton>
+                                        <CRow className="mb-3 align-items-center">
+                                            <CCol className="d-flex justify-content-center">
+                                                <CButton size="sm" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)}>
+                                                    Close Trade
+                                                </CButton>
+                                            </CCol>
+                                            <CCol className="d-flex justify-content-center">
+                                                <CFormInput
+                                                    type="number"
+                                                    step={0.0001}
+                                                    value={sl}
+                                                    onChange={handleChange(setSl)}
+                                                    className={styles.leverageInput}
+                                                    style={{maxWidth: '150px'}}
+                                                />
+                                                <CFormInput
+                                                    type="number"
+                                                    step={0.0001}
+                                                    value={tp}
+                                                    onChange={handleChange(setTp)}
+                                                    className={styles.leverageInput}
+                                                    style={{maxWidth: '150px'}}
+                                                />
+                                                <CButton color="success" size="lg" onClick={() => handleModifyPosition(item.ticket)}
+                                                         style={{cursor: "pointer"}}>Modify</CButton>
+                                            </CCol>
+                                        </CRow>
+
                                     </CCardBody>
                                 </CCollapse>
                             )

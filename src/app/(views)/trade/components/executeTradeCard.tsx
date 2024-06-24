@@ -37,6 +37,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
     const [ratio, setRatio] = useState<number>(3);
     const [maxSpread, setMaxSpread] = useState<number>(1);
     const [risk, setRisk] = useState<number>(1);
+    const [orderCreateError, setOrderCreateError] = useState<boolean>(false);
 
     useEffect(() => {
         const savedFormData = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
@@ -62,22 +63,26 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
     const createLongOrder = async () => {
         try {
+            setOrderCreateError(false);
             const tpParam = tpEnabled ? tpPrice : 0
             const entryParam = entryEnabled ? entryPrice : 0;
             const data = await tradeService.createLongOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
+            setOrderCreateError(true);
             console.error('Failed to create long order', error);
         }
     };
 
     const createShortOrder = async () => {
         try {
+            setOrderCreateError(false);
             const tpParam = tpEnabled ? tpPrice : 0;
             const entryParam = entryEnabled ? entryPrice : 0;
             const data = await tradeService.createShortOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
             setTradeResult(data);
         } catch (error) {
+            setOrderCreateError(true);
             console.error('Failed to create short order', error);
         }
     };
@@ -375,9 +380,23 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                     </CCard>
                 </div>
 
+                {orderCreateError && (
+                    <div className="d-flex justify-content-center align-items-center" style={{minHeight: '200px'}}>
+                        <CCard textBgColor={"danger"}
+                               textColor={"white"}
+                               className={`mb-3 border-info`} style={{minWidth: '38rem'}}>
+                            <CCardHeader>Order Creation Error</CCardHeader>
+                            <CCardBody>
+                                There was an error during order creation. Please check in your client if the order was executed or not.
+                            </CCardBody>
+                        </CCard>
+                    </div>
+                )}
+
                 {tradeResult && (
                     <div className="d-flex justify-content-center align-items-center" style={{minHeight: '200px'}}>
-                        <CCard textBgColor={tradeResult?.comment === "Request executed" ? "success" : "danger"} textColor={"white"}
+                        <CCard textBgColor={tradeResult?.comment === "Request executed" ? "success" : "danger"}
+                               textColor={"white"}
                                className={`mb-3 border-info`} style={{minWidth: '38rem'}}>
                             <CCardHeader>Order Creation Result</CCardHeader>
                             <CCardBody>
