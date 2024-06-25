@@ -43,3 +43,25 @@ export const breakEvenPositions = async (ticket: number) => {
         throw error;
     }
 };
+
+
+export const hedgePositions = async (ticket: number, sl: number) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/position/hedge/${ticket}`, {sl});
+        return response.data;
+    } catch (error) {
+        console.error('Error hedging position', error);
+        throw error;
+    }
+};
+
+
+export const flipPositions = async (ticket: number) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/position/flip/${ticket}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error flipping position', error);
+        throw error;
+    }
+};

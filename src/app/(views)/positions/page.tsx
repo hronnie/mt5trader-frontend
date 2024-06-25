@@ -12,13 +12,22 @@ import {
     CPlaceholder, CToast, CToastBody, CToaster, CRow, CCol, CFormInput
 } from '@coreui/react-pro';
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
-import {breakEvenPositions, closePositions, getPositions, modifyPositions} from '@/services/positionsService';
+import {
+    breakEvenPositions,
+    closePositions, flipPositions,
+    getPositions,
+    hedgePositions,
+    modifyPositions
+} from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
 import CIcon from "@coreui/icons-react";
-import {cilCloudDownload, cilReload} from "@coreui/icons";
-import {getSymbolInfo} from "@/services/newsService";
-import {getPriceInfo} from "@/services/priceService";
-import styles from "@/app/(views)/settings/settings.module.css";
+import {cilReload} from "@coreui/icons";
+import {
+    errorBreakEvenToast,
+    errorCloseToast, errorFlipToast, errorHedgeToast, errorModifyToast,
+    successBreakEvenToast,
+    successCloseToast, successFlipToast, successHedgeToast, successModifyToast
+} from "@/app/(views)/positions/positionResultToasts";
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
@@ -29,16 +38,7 @@ const Positions = () => {
     const [positionSLTP, setPositionSLTP] = useState<{[key: number]: {sl: number, tp: number}}>({});
 
     const toaster = useRef();
-    const successToast = (
-        <CToast color="success">
-            <CToastBody>You successfully closed the position!</CToastBody>
-        </CToast>
-    )
-    const errorToast = (
-        <CToast color="danger">
-            <CToastBody>There was an error during closing the position!</CToastBody>
-        </CToast>
-    )
+
 
     const initializePositionSLTP = (positions: TradePosition[]) => {
         const initialSLTP: {[key: number]: {sl: number, tp: number}} = {};
@@ -118,11 +118,11 @@ const Positions = () => {
         try {
             const closeResult = await closePositions(ticket);
             await refreshPositions();
-            addToast(successToast);
+            addToast(successCloseToast);
         } catch (error) {
             console.error('Error creating long order', error);
             await refreshPositions();
-            addToast(errorToast);
+            addToast(errorCloseToast);
             throw error;
         }
     }
@@ -137,10 +137,10 @@ const Positions = () => {
         try {
             const breakEvenResult = await breakEvenPositions(ticket);
             await refreshPositions();
-            addToast(successToast);
+            addToast(successBreakEvenToast);
         } catch (error) {
             await refreshPositions();
-            addToast(errorToast);
+            addToast(errorBreakEvenToast);
             throw error;
         }
     }
@@ -150,11 +150,35 @@ const Positions = () => {
         try {
             const modifyResult = await modifyPositions(ticket, sl, tp);
             await refreshPositions();
-            addToast(successToast);
+            addToast(successModifyToast);
         } catch (error) {
-            console.error('Error creating long order', error);
             await refreshPositions();
-            addToast(errorToast);
+            addToast(errorModifyToast);
+            throw error;
+        }
+    }
+
+    const handleHedgePosition = async (ticket: number) => {
+        const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
+        try {
+            const hedgeResult = await hedgePositions(ticket, sl);
+            await refreshPositions();
+            addToast(successHedgeToast);
+        } catch (error) {
+            await refreshPositions();
+            addToast(errorHedgeToast);
+            throw error;
+        }
+    }
+
+    const handleFlipPosition = async (ticket: number) => {
+        try {
+            const flipResult = await flipPositions(ticket);
+            await refreshPositions();
+            addToast(successFlipToast);
+        } catch (error) {
+            await refreshPositions();
+            addToast(errorFlipToast);
             throw error;
         }
     }
@@ -291,6 +315,25 @@ const Positions = () => {
                                                 />
                                                 <CButton color="primary" size="lg" onClick={() => handleModifyPosition(item.ticket)}
                                                          style={{cursor: "pointer"}} disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
+                                            </CCol>
+                                        </CRow>
+                                        <CRow className="mb-3 align-items-center">
+                                            <CCol className="d-flex">
+                                                <strong style={{marginTop: '10px', marginRight: '14px'}}>SL:</strong><CFormInput
+                                                    type="number"
+                                                    step={0.0001}
+                                                    value={sl}
+                                                    onChange={handleChange(item.ticket, 'sl')}
+                                                    style={{maxWidth: '150px', marginRight: '8px'}}
+                                                />
+                                                <CButton color="danger" size="lg" onClick={() => handleHedgePosition(item.ticket)}
+                                                         style={{cursor: "pointer"}} >Hedge</CButton>
+                                            </CCol>
+                                        </CRow>
+                                        <CRow className="mb-3 align-items-center">
+                                            <CCol className="d-flex">
+                                                <CButton color="danger" size="lg" onClick={() => handleFlipPosition(item.ticket)}
+                                                         style={{cursor: "pointer"}} >Flip</CButton>
                                             </CCol>
                                         </CRow>
 
