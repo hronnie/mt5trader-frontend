@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 
-export const getPositions = async () => {
+export const getPositionsService = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/position/all`);
         return response.data;
@@ -14,7 +14,7 @@ export const getPositions = async () => {
 };
 
 
-export const closePositions = async (ticket: number) => {
+export const closePositionsService = async (ticket: number) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/position/close/${ticket}`);
         return response.data;
@@ -24,7 +24,7 @@ export const closePositions = async (ticket: number) => {
     }
 };
 
-export const modifyPositions = async (ticket: number, sl: number, tp: number) => {
+export const modifyPositionsService = async (ticket: number, sl: number, tp: number) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/position/modify/${ticket}`, {sl, tp});
         return response.data;
@@ -34,7 +34,7 @@ export const modifyPositions = async (ticket: number, sl: number, tp: number) =>
     }
 };
 
-export const breakEvenPositions = async (ticket: number) => {
+export const breakEvenPositionService = async (ticket: number) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/position/breakeven/${ticket}`);
         return response.data;
@@ -45,7 +45,7 @@ export const breakEvenPositions = async (ticket: number) => {
 };
 
 
-export const hedgePositions = async (ticket: number) => {
+export const hedgePositionService = async (ticket: number) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/position/hedge/${ticket}`);
         return response.data;
@@ -56,7 +56,7 @@ export const hedgePositions = async (ticket: number) => {
 };
 
 
-export const flipPositions = async (ticket: number) => {
+export const flipPositionService = async (ticket: number) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/position/flip/${ticket}`);
         return response.data;
@@ -66,7 +66,7 @@ export const flipPositions = async (ticket: number) => {
     }
 };
 
-export const closeAllPosition = async () => {
+export const closeAllPositionService = async () => {
     try {
         const response = await axios.post(`${API_BASE_URL}/position/closeall`);
         return response.data;

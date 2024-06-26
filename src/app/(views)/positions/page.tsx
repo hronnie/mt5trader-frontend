@@ -9,25 +9,27 @@ import {
     CCollapse,
     CSmartTable,
     CCardTitle,
-    CPlaceholder, CToast, CToastBody, CToaster, CRow, CCol, CFormInput
+    CPlaceholder, CToast, CToastBody, CToaster, CRow, CCol, CFormInput, CTooltip
 } from '@coreui/react-pro';
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
 import {
-    breakEvenPositions, closeAllPosition,
-    closePositions, flipPositions,
-    getPositions,
-    hedgePositions,
-    modifyPositions,
+    breakEvenPositionService, closeAllPositionService,
+    closePositionsService, flipPositionService,
+    getPositionsService,
+    hedgePositionService,
+    modifyPositionsService,
 } from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
 import CIcon from "@coreui/icons-react";
-import {cilDelete, cilReload} from "@coreui/icons";
+import {cilArrowThickToRight, cilCode, cilCropRotate, cilDelete, cilElevator, cilReload} from "@coreui/icons";
 import {
     errorBreakEvenToast, errorCloseAllToast,
     errorCloseToast, errorFlipToast, errorHedgeToast, errorModifyToast,
     successBreakEvenToast, successCloseAllToast,
     successCloseToast, successFlipToast, successHedgeToast, successModifyToast
 } from "@/app/(views)/positions/positionResultToasts";
+import {ORDER_REQUEST_SUCCESS_TEXT} from "@/app/common/constants";
+import {formatNumber} from "@/app/common/helperMethods";
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
@@ -56,7 +58,7 @@ const Positions = () => {
         addToast(0);
         setLoading(true);
         try {
-            const positions = await getPositions();
+            const positions = await getPositionsService();
             setPositions(positions);
             initializePositionSLTP(positions);
             setError(null);
@@ -78,11 +80,12 @@ const Positions = () => {
         { key: 'time', label: 'Time' },
         { key: 'type', label: 'Type' },
         { key: 'volume', label: 'Volume' },
-        { key: 'price', label: 'Price' },
+        { key: 'entry_price', label: 'Entry Price' },
         { key: 'sl', label: 'SL' },
         { key: 'tp', label: 'TP' },
         { key: 'current_price', label: 'Current Price' },
         { key: 'profit', label: 'Profit' },
+        { key: 'actions', label: 'Actions' },
         {
             key: 'show_details',
             label: '',
@@ -100,9 +103,6 @@ const Positions = () => {
         return orderType.includes('Sell') ? 'danger' : 'success';
     }
 
-    const formatNumber = (num: number) => {
-        return num.toFixed(5);
-    }
 
     const toggleDetails = (index: number) => {
         const position = details.indexOf(index);
@@ -117,11 +117,15 @@ const Positions = () => {
 
     const handlePositionClose = async (ticket: number) => {
         try {
-            const closeResult = await closePositions(ticket);
-            await refreshPositions();
-            addToast(successCloseToast);
+            const closeResult = await closePositionsService(ticket);
+            if (closeResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                await refreshPositions();
+                addToast(successCloseToast);
+            } else {
+                await refreshPositions();
+                addToast(errorCloseToast);
+            }
         } catch (error) {
-            console.error('Error creating long order', error);
             await refreshPositions();
             addToast(errorCloseToast);
             throw error;
@@ -136,9 +140,14 @@ const Positions = () => {
 
     const handleBreakEven = async (ticket: number) => {
         try {
-            const breakEvenResult = await breakEvenPositions(ticket);
-            await refreshPositions();
-            addToast(successBreakEvenToast);
+            const breakEvenResult = await breakEvenPositionService(ticket);
+            if (breakEvenResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                await refreshPositions();
+                addToast(successBreakEvenToast);
+            } else {
+                await refreshPositions();
+                addToast(errorBreakEvenToast);
+            }
         } catch (error) {
             await refreshPositions();
             addToast(errorBreakEvenToast);
@@ -149,9 +158,14 @@ const Positions = () => {
     const handleModifyPosition = async (ticket: number) => {
         const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
         try {
-            const modifyResult = await modifyPositions(ticket, sl, tp);
-            await refreshPositions();
-            addToast(successModifyToast);
+            const modifyResult = await modifyPositionsService(ticket, sl, tp);
+            if (modifyResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                await refreshPositions();
+                addToast(successModifyToast);
+            } else {
+                await refreshPositions();
+                addToast(errorModifyToast);
+            }
         } catch (error) {
             await refreshPositions();
             addToast(errorModifyToast);
@@ -161,9 +175,14 @@ const Positions = () => {
 
     const handleHedgePosition = async (ticket: number) => {
         try {
-            const hedgeResult = await hedgePositions(ticket);
-            await refreshPositions();
-            addToast(successHedgeToast);
+            const hedgeResult = await hedgePositionService(ticket);
+            if (hedgeResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                await refreshPositions();
+                addToast(successHedgeToast);
+            } else {
+                await refreshPositions();
+                addToast(errorHedgeToast);
+            }
         } catch (error) {
             await refreshPositions();
             addToast(errorHedgeToast);
@@ -173,9 +192,14 @@ const Positions = () => {
 
     const handleFlipPosition = async (ticket: number) => {
         try {
-            const flipResult = await flipPositions(ticket);
-            await refreshPositions();
-            addToast(successFlipToast);
+            const flipResult = await flipPositionService(ticket);
+            if (flipResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                await refreshPositions();
+                addToast(successFlipToast);
+            } else {
+                await refreshPositions();
+                addToast(errorFlipToast);
+            }
         } catch (error) {
             await refreshPositions();
             addToast(errorFlipToast);
@@ -185,9 +209,14 @@ const Positions = () => {
 
     const handleCloseAllPosition = async () => {
         try {
-            const closeAllPositionResult = await closeAllPosition();
-            await refreshPositions();
-            addToast(successCloseAllToast);
+            const closeAllPositionResult = await closeAllPositionService();
+            if (closeAllPositionResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                await refreshPositions();
+                addToast(successCloseAllToast);
+            } else {
+                await refreshPositions();
+                addToast(errorCloseAllToast);
+            }
         } catch (error) {
             await refreshPositions();
             addToast(errorCloseAllToast);
@@ -242,6 +271,35 @@ const Positions = () => {
         </CCollapse>
     </>
 
+    const actionButtonsSection = (ticket: number, profit: number) =>  <>
+        <CRow className="mb-3 align-items-center">
+            <CCol className="d-flex">
+                <CButton color="danger" className="float-start" onClick={() => handlePositionClose(ticket)} style={{marginBottom: "3px"}} title={"Close position"}>
+                    <CIcon icon={cilDelete}/>
+                </CButton>
+                <span style={{marginTop: "8px", marginLeft: "5px"}}>Close</span>
+            </CCol>
+            <CCol className="d-flex">
+                <CButton color="primary" className="float-start" onClick={() => handleBreakEven(ticket)} style={{marginBottom: "3px"}} disabled={handleBreakEvenDisabled(profit)}>
+                    <CIcon icon={cilArrowThickToRight}/>
+                </CButton>
+                <span style={{marginTop: "8px", marginLeft: "5px"}}>Break Even</span>
+            </CCol>
+            <CCol className="d-flex">
+                <CButton color="warning" className="float-start" onClick={() => handleHedgePosition(ticket)} style={{marginBottom: "3px"}}>
+                    <CIcon icon={cilElevator}/>
+                </CButton>
+                <span style={{marginTop: "8px", marginLeft: "5px"}}>Hedge</span>
+            </CCol>
+            <CCol className="d-flex">
+                <CButton color="danger" className="float-start" onClick={() => handleFlipPosition(ticket)} style={{marginBottom: "3px"}}>
+                    <CIcon icon={cilCropRotate}/>
+                </CButton>
+                <span style={{marginTop: "8px", marginLeft: "5px"}}>Flip</span>
+            </CCol>
+        </CRow>
+    </>
+
     return (
         <CCard className="mb-4">
             <CCardHeader>
@@ -273,7 +331,7 @@ const Positions = () => {
                                 <CBadge color={getOrderTypeBadge(item.type)}>{item.type}</CBadge>
                             </td>
                         ),
-                        price: (item: TradePosition) => (
+                        entry_price: (item: TradePosition) => (
                             <td>{formatNumber(item.price)}</td>
                         ),
                         sl: (item: TradePosition) => (
@@ -282,11 +340,20 @@ const Positions = () => {
                         tp: (item: TradePosition) => (
                             <td>{formatNumber(item.tp)}</td>
                         ),
+                        actions: (item: TradePosition) => (
+                            <td>{actionButtonsSection(item.ticket, item.profit)}</td>
+                        ),
+                        volume: (item: TradePosition) => (
+                            <td>{formatNumber(item.volume, 2)}</td>
+                        ),
+                        current_price: (item: TradePosition) => (
+                            <td>{formatNumber(item.current_price)}</td>
+                        ),
                         show_details: (item: TradePosition) => {
                             return (
                                 <td className="py-2">
                                     <CButton
-                                        color="primary"
+                                        color="danger"
                                         variant="outline"
                                         shape="square"
                                         size="sm"
@@ -294,7 +361,7 @@ const Positions = () => {
                                             toggleDetails(item.ticket)
                                         }}
                                     >
-                                        {details.includes(item.ticket) ? 'Hide' : 'Details'}
+                                        {details.includes(item.ticket) ? 'Hide' : 'Modify'}
                                     </CButton>
                                 </td>
                             )
@@ -307,24 +374,6 @@ const Positions = () => {
                                     <CCardBody className="p-3">
                                         <h4>{item.symbol}</h4>
                                         <p className="text-muted">Position opened at: {item.time}</p>
-                                        <CRow className="mb-3 align-items-center">
-                                            <CCol className="d-flex">
-                                                <CButton size="lg" color="danger" className="ml-1" onClick={() => handlePositionClose(item.ticket)} style={{color: "white"}}>
-                                                    Close Trade
-                                                </CButton>
-                                            </CCol>
-                                        </CRow>
-                                        <CRow className="mb-3 align-items-center">
-                                            <CCol className="d-flex">
-                                                <CButton size="lg" color="primary"
-                                                         className="ml-1"
-                                                         onClick={() => handleBreakEven(item.ticket)}
-                                                         disabled={handleBreakEvenDisabled(item.profit)}
-                                                         style={{color: "white"}}>
-                                                    Break Even
-                                                </CButton>
-                                            </CCol>
-                                        </CRow>
                                         <CRow className="mb-3 align-items-center">
                                             <CCol className="d-flex">
                                                 <strong style={{marginTop: '10px', marginRight: '14px'}}>SL:</strong><CFormInput
@@ -341,23 +390,10 @@ const Positions = () => {
                                                     onChange={handleChange(item.ticket, 'tp')}
                                                     style={{maxWidth: '150px', marginRight: '8px'}}
                                                 />
-                                                <CButton color="primary" size="lg" onClick={() => handleModifyPosition(item.ticket)}
+                                                <CButton color="primary" size="sm" onClick={() => handleModifyPosition(item.ticket)}
                                                          style={{cursor: "pointer"}} disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
                                             </CCol>
                                         </CRow>
-                                        <CRow className="mb-3 align-items-center">
-                                            <CCol className="d-flex">
-                                                <CButton color="danger" size="lg" onClick={() => handleHedgePosition(item.ticket)}
-                                                         style={{cursor: "pointer"}} >Hedge</CButton>
-                                            </CCol>
-                                        </CRow>
-                                        <CRow className="mb-3 align-items-center">
-                                            <CCol className="d-flex">
-                                                <CButton color="danger" size="lg" onClick={() => handleFlipPosition(item.ticket)}
-                                                         style={{cursor: "pointer"}} >Flip</CButton>
-                                            </CCol>
-                                        </CRow>
-
                                     </CCardBody>
                                 </CCollapse>
                             )

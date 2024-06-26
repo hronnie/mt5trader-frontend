@@ -12,15 +12,16 @@ import {
     CFormSwitch,
     CListGroup,
     CListGroupItem,
-    CRow
+    CRow, CToast, CToastBody, CToaster
 } from "@coreui/react-pro";
-import React, {BaseSyntheticEvent, useEffect, useState} from "react";
+import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
 import styles from "@/app/(views)/settings/settings.module.css";
 import {getPriceInfo} from "@/services/priceService";
 import {Price} from "@/app/interfaces/priceInterface";
-import {SETTINGS_LOCAL_STORAGE} from "@/app/common/constants";
+import {ORDER_REQUEST_SUCCESS_TEXT, SETTINGS_LOCAL_STORAGE} from "@/app/common/constants";
 import tradeService from "@/services/tradeService";
 import {TradeResult} from "@/app/interfaces/tradeResult";
+import {errorCloseAllToast, successCloseAllToast} from "@/app/(views)/positions/positionResultToasts";
 
 interface ExecuteTradeCardProps {
     symbolName: string;
@@ -38,6 +39,9 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
     const [maxSpread, setMaxSpread] = useState<number>(1);
     const [risk, setRisk] = useState<number>(1);
     const [orderCreateError, setOrderCreateError] = useState<boolean>(false);
+    const [toast, addToast] = useState(0);
+
+    const toaster = useRef();
 
     useEffect(() => {
         const savedFormData = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
@@ -61,16 +65,34 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
         fetchData();
     }, [symbolName]);
 
+    const successCreateOrderToast = (
+        <CToast color="success">
+            <CToastBody>You successfully created a new order!</CToastBody>
+        </CToast>
+    )
+
+    const errorCreateOrderToast = (
+        <CToast color="danger">
+            <CToastBody>There was an error during creating a new order!</CToastBody>
+        </CToast>
+    )
+
     const createLongOrder = async () => {
         try {
             setOrderCreateError(false);
             const tpParam = tpEnabled ? tpPrice : 0
             const entryParam = entryEnabled ? entryPrice : 0;
             const data = await tradeService.createLongOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
+            if (data?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                addToast(successCreateOrderToast);
+            } else {
+                addToast(errorCreateOrderToast);
+            }
             setTradeResult(data);
         } catch (error) {
             setOrderCreateError(true);
             console.error('Failed to create long order', error);
+            addToast(errorCreateOrderToast);
         }
     };
 
@@ -80,10 +102,16 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
             const tpParam = tpEnabled ? tpPrice : 0;
             const entryParam = entryEnabled ? entryPrice : 0;
             const data = await tradeService.createShortOrder(symbolName, slPrice, tpParam, entryParam, ratio, maxSpread, risk);
+            if (data?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+                addToast(successCreateOrderToast);
+            } else {
+                addToast(errorCreateOrderToast);
+            }
             setTradeResult(data);
         } catch (error) {
             setOrderCreateError(true);
             console.error('Failed to create short order', error);
+            addToast(errorCreateOrderToast);
         }
     };
 
@@ -395,7 +423,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
 
                 {tradeResult && (
                     <div className="d-flex justify-content-center align-items-center" style={{minHeight: '200px'}}>
-                        <CCard textBgColor={tradeResult?.comment === "Request executed" ? "success" : "danger"}
+                        <CCard textBgColor={tradeResult?.comment === ORDER_REQUEST_SUCCESS_TEXT ? "success" : "danger"}
                                textColor={"white"}
                                className={`mb-3 border-info`} style={{minWidth: '38rem'}}>
                             <CCardHeader>Order Creation Result</CCardHeader>
@@ -448,7 +476,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                             </CCardBody>
                         </CCard>
                     </div>)}
-
+                <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
             </CCardBody>
         </CCard>
 

@@ -4,7 +4,7 @@ interface TradePosition {
     time: string;
     type: string;
     volume: number;
-    price: number;
+    entry_price: number;
     sl: number;
     tp: number;
     current_price: number;
