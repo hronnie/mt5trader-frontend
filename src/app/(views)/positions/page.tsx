@@ -8,8 +8,7 @@ import {
     CButton,
     CCollapse,
     CSmartTable,
-    CCardTitle,
-    CPlaceholder, CToast, CToastBody, CToaster, CRow, CCol, CFormInput, CTooltip
+    CToaster, CRow, CCol, CFormInput
 } from '@coreui/react-pro';
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
 import {
@@ -30,17 +29,20 @@ import {
 } from "@/app/(views)/positions/positionResultToasts";
 import {ORDER_REQUEST_SUCCESS_TEXT} from "@/app/common/constants";
 import {formatNumber} from "@/app/common/helperMethods";
+import {positionTableColumns} from "@/app/(views)/positions/positionTableColumn";
+import {actionButtonsSection} from "@/app/(views)/positions/components/actionButtonComponent";
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
     const [details, setDetails] = useState<number[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const [toast, addToast] = useState(0);
     const [positionSLTP, setPositionSLTP] = useState<{[key: number]: {sl: number, tp: number}}>({});
     const [visible, setVisible] = useState(false)
 
     const toaster = useRef();
+
+    const POSITION_REFRESH_RATE = 200000000;
 
 
     const initializePositionSLTP = (positions: TradePosition[]) => {
@@ -56,7 +58,6 @@ const Positions = () => {
 
     const refreshPositions = async () => {
         addToast(0);
-        setLoading(true);
         try {
             const positions = await getPositionsService();
             setPositions(positions);
@@ -66,34 +67,18 @@ const Positions = () => {
             setError(error);
             setPositions([]);
         } finally {
-            setLoading(false);
         }
     }
 
     useEffect(() => {
         refreshPositions();
-    }, []);
 
-    const columns = [
-        { key: 'symbol', label: 'Symbol' },
-        { key: 'ticket', label: 'Ticket' },
-        { key: 'time', label: 'Time' },
-        { key: 'type', label: 'Type' },
-        { key: 'volume', label: 'Volume' },
-        { key: 'entry_price', label: 'Entry Price' },
-        { key: 'sl', label: 'SL' },
-        { key: 'tp', label: 'TP' },
-        { key: 'current_price', label: 'Current Price' },
-        { key: 'profit', label: 'Profit' },
-        { key: 'actions', label: 'Actions' },
-        {
-            key: 'show_details',
-            label: '',
-            _style: { width: '1%' },
-            filter: false,
-            sorter: false,
-        },
-    ];
+        const interval = setInterval(() => {
+            refreshPositions();
+        }, POSITION_REFRESH_RATE); // Refresh every 5 seconds
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, []);
 
     const getProfitBadge = (profit: number) => {
         return profit > 0 ? 'success' : 'danger';
@@ -115,45 +100,38 @@ const Positions = () => {
         setDetails(newDetails);
     }
 
-    const handlePositionClose = async (ticket: number) => {
-        try {
-            const closeResult = await closePositionsService(ticket);
-            if (closeResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
-                await refreshPositions();
-                addToast(successCloseToast);
-            } else {
-                await refreshPositions();
-                addToast(errorCloseToast);
-            }
-        } catch (error) {
-            await refreshPositions();
-            addToast(errorCloseToast);
-            throw error;
-        }
-    }
-
     const handleModifyDisabled = (sl: number, tp: number): boolean => {
         const isSlEmpty = !sl || sl === 0 || sl < 0;
         const isTpEmpty = !tp || tp === 0 || tp < 0;
         return isSlEmpty && isTpEmpty;
     }
 
-    const handleBreakEven = async (ticket: number) => {
+    const handlePositionAction = async (
+        serviceFunction: (ticket: number) => Promise<any>,
+        ticket: number,
+        successToast: any,
+        errorToast: any
+    ) => {
         try {
-            const breakEvenResult = await breakEvenPositionService(ticket);
-            if (breakEvenResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
+            const result = await serviceFunction(ticket);
+            if (result?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
                 await refreshPositions();
-                addToast(successBreakEvenToast);
+                addToast(successToast);
             } else {
                 await refreshPositions();
-                addToast(errorBreakEvenToast);
+                addToast(errorToast);
             }
         } catch (error) {
             await refreshPositions();
-            addToast(errorBreakEvenToast);
+            addToast(errorToast);
             throw error;
         }
-    }
+    };
+
+    const handlePositionClose = (ticket: number) => handlePositionAction(closePositionsService, ticket, successCloseToast, errorCloseToast);
+    const handleBreakEven = (ticket: number) => handlePositionAction(breakEvenPositionService, ticket, successBreakEvenToast, errorBreakEvenToast);
+    const handleHedgePosition = (ticket: number) => handlePositionAction(hedgePositionService, ticket, successHedgeToast, errorHedgeToast);
+    const handleFlipPosition = (ticket: number) => handlePositionAction(flipPositionService, ticket, successFlipToast, errorFlipToast);
 
     const handleModifyPosition = async (ticket: number) => {
         const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
@@ -171,41 +149,7 @@ const Positions = () => {
             addToast(errorModifyToast);
             throw error;
         }
-    }
-
-    const handleHedgePosition = async (ticket: number) => {
-        try {
-            const hedgeResult = await hedgePositionService(ticket);
-            if (hedgeResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
-                await refreshPositions();
-                addToast(successHedgeToast);
-            } else {
-                await refreshPositions();
-                addToast(errorHedgeToast);
-            }
-        } catch (error) {
-            await refreshPositions();
-            addToast(errorHedgeToast);
-            throw error;
-        }
-    }
-
-    const handleFlipPosition = async (ticket: number) => {
-        try {
-            const flipResult = await flipPositionService(ticket);
-            if (flipResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
-                await refreshPositions();
-                addToast(successFlipToast);
-            } else {
-                await refreshPositions();
-                addToast(errorFlipToast);
-            }
-        } catch (error) {
-            await refreshPositions();
-            addToast(errorFlipToast);
-            throw error;
-        }
-    }
+    };
 
     const handleCloseAllPosition = async () => {
         try {
@@ -222,7 +166,8 @@ const Positions = () => {
             addToast(errorCloseAllToast);
             throw error;
         }
-    }
+    };
+
 
     const handleBreakEvenDisabled = (profit: number) => {
         return profit < 10;
@@ -238,21 +183,6 @@ const Positions = () => {
             }
         }));
     }
-
-    if (loading)
-        return <CCard
-        >
-            <CCardHeader><strong>Active Positions (Loading...)</strong></CCardHeader>
-            <CCardBody>
-                <CCardTitle></CCardTitle>
-                <CPlaceholder as="p" animation="wave">
-                    <CPlaceholder xs={12}/>
-                    <CPlaceholder xs={12}/>
-                    <CPlaceholder xs={12}/>
-                    <CPlaceholder xs={12}/>
-                </CPlaceholder>
-            </CCardBody>
-        </CCard>;
 
     if (error) return <div>Error: {error.message}</div>;
 
@@ -271,35 +201,6 @@ const Positions = () => {
         </CCollapse>
     </>
 
-    const actionButtonsSection = (ticket: number, profit: number) =>  <>
-        <CRow className="mb-3 align-items-center">
-            <CCol className="d-flex">
-                <CButton color="danger" className="float-start" onClick={() => handlePositionClose(ticket)} style={{marginBottom: "3px"}} title={"Close position"}>
-                    <CIcon icon={cilDelete}/>
-                </CButton>
-                <span style={{marginTop: "8px", marginLeft: "5px"}}>Close</span>
-            </CCol>
-            <CCol className="d-flex">
-                <CButton color="primary" className="float-start" onClick={() => handleBreakEven(ticket)} style={{marginBottom: "3px"}} disabled={handleBreakEvenDisabled(profit)}>
-                    <CIcon icon={cilArrowThickToRight}/>
-                </CButton>
-                <span style={{marginTop: "8px", marginLeft: "5px"}}>Break Even</span>
-            </CCol>
-            <CCol className="d-flex">
-                <CButton color="warning" className="float-start" onClick={() => handleHedgePosition(ticket)} style={{marginBottom: "3px"}}>
-                    <CIcon icon={cilElevator}/>
-                </CButton>
-                <span style={{marginTop: "8px", marginLeft: "5px"}}>Hedge</span>
-            </CCol>
-            <CCol className="d-flex">
-                <CButton color="danger" className="float-start" onClick={() => handleFlipPosition(ticket)} style={{marginBottom: "3px"}}>
-                    <CIcon icon={cilCropRotate}/>
-                </CButton>
-                <span style={{marginTop: "8px", marginLeft: "5px"}}>Flip</span>
-            </CCol>
-        </CRow>
-    </>
-
     return (
         <CCard className="mb-4">
             <CCardHeader>
@@ -313,7 +214,7 @@ const Positions = () => {
                 {closeAllPositionSection}
                 <CSmartTable
                     activePage={1}
-                    columns={columns}
+                    columns={positionTableColumns}
                     columnFilter
                     columnSorter
                     items={positions}
@@ -323,7 +224,7 @@ const Positions = () => {
                     scopedColumns={{
                         profit: (item: TradePosition) => (
                             <td>
-                                <CBadge color={getProfitBadge(item.profit)}>{formatNumber(item.profit)}</CBadge>
+                                <CBadge color={getProfitBadge(item.profit)}>{formatNumber(item.profit, 2)}</CBadge>
                             </td>
                         ),
                         type: (item: TradePosition) => (
@@ -341,7 +242,15 @@ const Positions = () => {
                             <td>{formatNumber(item.tp)}</td>
                         ),
                         actions: (item: TradePosition) => (
-                            <td>{actionButtonsSection(item.ticket, item.profit)}</td>
+                            <td>{actionButtonsSection(
+                                item.ticket,
+                                item.profit,
+                                handlePositionClose,
+                                handleBreakEven,
+                                handleBreakEvenDisabled,
+                                handleHedgePosition,
+                                handleFlipPosition
+                            )}</td>
                         ),
                         volume: (item: TradePosition) => (
                             <td>{formatNumber(item.volume, 2)}</td>
@@ -377,19 +286,19 @@ const Positions = () => {
                                         <CRow className="mb-3 align-items-center">
                                             <CCol className="d-flex">
                                                 <strong style={{marginTop: '10px', marginRight: '14px'}}>SL:</strong><CFormInput
-                                                    type="number"
-                                                    step={0.0001}
-                                                    value={sl}
-                                                    onChange={handleChange(item.ticket, 'sl')}
-                                                    style={{maxWidth: '150px', marginRight: '8px'}}
-                                                />
+                                                type="number"
+                                                step={0.0001}
+                                                value={sl}
+                                                onChange={handleChange(item.ticket, 'sl')}
+                                                style={{maxWidth: '150px', marginRight: '8px'}}
+                                            />
                                                 <strong style={{marginTop: '10px', marginRight: '14px'}}>TP:</strong><CFormInput
-                                                    type="number"
-                                                    step={0.0001}
-                                                    value={tp}
-                                                    onChange={handleChange(item.ticket, 'tp')}
-                                                    style={{maxWidth: '150px', marginRight: '8px'}}
-                                                />
+                                                type="number"
+                                                step={0.0001}
+                                                value={tp}
+                                                onChange={handleChange(item.ticket, 'tp')}
+                                                style={{maxWidth: '150px', marginRight: '8px'}}
+                                            />
                                                 <CButton color="primary" size="sm" onClick={() => handleModifyPosition(item.ticket)}
                                                          style={{cursor: "pointer"}} disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
                                             </CCol>
@@ -399,7 +308,7 @@ const Positions = () => {
                             )
                         },
                     }}
-                    sorterValue={{ column: 'profit', state: 'asc' }}
+                    sorterValue={{ column: 'time', state: 'asc' }}
                     tableProps={{
                         className: 'add-this-class',
                         responsive: true,
