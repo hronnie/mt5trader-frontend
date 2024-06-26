@@ -100,7 +100,7 @@ const Positions = () => {
     }
 
     const formatNumber = (num: number) => {
-        return num.toFixed(4);
+        return num.toFixed(5);
     }
 
     const toggleDetails = (index: number) => {
@@ -159,9 +159,8 @@ const Positions = () => {
     }
 
     const handleHedgePosition = async (ticket: number) => {
-        const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
         try {
-            const hedgeResult = await hedgePositions(ticket, sl);
+            const hedgeResult = await hedgePositions(ticket);
             await refreshPositions();
             addToast(successHedgeToast);
         } catch (error) {
@@ -184,7 +183,6 @@ const Positions = () => {
     }
 
     const handleBreakEvenDisabled = (profit: number) => {
-        debugger;
         return profit < 10;
     }
 
@@ -319,13 +317,6 @@ const Positions = () => {
                                         </CRow>
                                         <CRow className="mb-3 align-items-center">
                                             <CCol className="d-flex">
-                                                <strong style={{marginTop: '10px', marginRight: '14px'}}>SL:</strong><CFormInput
-                                                    type="number"
-                                                    step={0.0001}
-                                                    value={sl}
-                                                    onChange={handleChange(item.ticket, 'sl')}
-                                                    style={{maxWidth: '150px', marginRight: '8px'}}
-                                                />
                                                 <CButton color="danger" size="lg" onClick={() => handleHedgePosition(item.ticket)}
                                                          style={{cursor: "pointer"}} >Hedge</CButton>
                                             </CCol>

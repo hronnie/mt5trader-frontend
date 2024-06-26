@@ -45,9 +45,9 @@ export const breakEvenPositions = async (ticket: number) => {
 };
 
 
-export const hedgePositions = async (ticket: number, sl: number) => {
+export const hedgePositions = async (ticket: number) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/position/hedge/${ticket}`, {sl});
+        const response = await axios.post(`${API_BASE_URL}/position/hedge/${ticket}`);
         return response.data;
     } catch (error) {
         console.error('Error hedging position', error);
