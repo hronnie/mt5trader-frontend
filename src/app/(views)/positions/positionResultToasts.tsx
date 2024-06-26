@@ -62,3 +62,17 @@ export const errorFlipToast = (
 )
 
 
+
+export const successCloseAllToast = (
+    <CToast color="success">
+        <CToastBody>You successfully closed all position!</CToastBody>
+    </CToast>
+)
+
+export const errorCloseAllToast = (
+    <CToast color="danger">
+        <CToastBody>There was an error during closing all position!</CToastBody>
+    </CToast>
+)
+
+

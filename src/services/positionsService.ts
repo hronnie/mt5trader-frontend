@@ -65,3 +65,13 @@ export const flipPositions = async (ticket: number) => {
         throw error;
     }
 };
+
+export const closeAllPosition = async () => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/position/closeall`);
+        return response.data;
+    } catch (error) {
+        console.error('Error closing all position', error);
+        throw error;
+    }
+};

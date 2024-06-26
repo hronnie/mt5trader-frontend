@@ -13,19 +13,19 @@ import {
 } from '@coreui/react-pro';
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
 import {
-    breakEvenPositions,
+    breakEvenPositions, closeAllPosition,
     closePositions, flipPositions,
     getPositions,
     hedgePositions,
-    modifyPositions
+    modifyPositions,
 } from '@/services/positionsService';
 import { TradePosition } from '@/interfaces';
 import CIcon from "@coreui/icons-react";
-import {cilReload} from "@coreui/icons";
+import {cilDelete, cilReload} from "@coreui/icons";
 import {
-    errorBreakEvenToast,
+    errorBreakEvenToast, errorCloseAllToast,
     errorCloseToast, errorFlipToast, errorHedgeToast, errorModifyToast,
-    successBreakEvenToast,
+    successBreakEvenToast, successCloseAllToast,
     successCloseToast, successFlipToast, successHedgeToast, successModifyToast
 } from "@/app/(views)/positions/positionResultToasts";
 
@@ -182,6 +182,18 @@ const Positions = () => {
         }
     }
 
+    const handleCloseAllPosition = async () => {
+        try {
+            const closeAllPositionResult = await closeAllPosition();
+            await refreshPositions();
+            addToast(successCloseAllToast);
+        } catch (error) {
+            await refreshPositions();
+            addToast(errorCloseAllToast);
+            throw error;
+        }
+    }
+
     const handleBreakEvenDisabled = (profit: number) => {
         return profit < 10;
     }
@@ -220,6 +232,9 @@ const Positions = () => {
                 <strong>Active positions</strong>
                 <CButton color="primary" className="float-end" onClick={refreshPositions}>
                     <CIcon icon={cilReload}/>
+                </CButton>
+                <CButton color="danger" className="float-end" onClick={handleCloseAllPosition}>
+                    <CIcon icon={cilDelete}/>
                 </CButton>
             </CCardHeader>
             <CCardBody>
