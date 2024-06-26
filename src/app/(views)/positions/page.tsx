@@ -36,6 +36,7 @@ const Positions = () => {
     const [error, setError] = useState<Error | null>(null);
     const [toast, addToast] = useState(0);
     const [positionSLTP, setPositionSLTP] = useState<{[key: number]: {sl: number, tp: number}}>({});
+    const [visible, setVisible] = useState(false)
 
     const toaster = useRef();
 
@@ -226,6 +227,21 @@ const Positions = () => {
 
     if (error) return <div>Error: {error.message}</div>;
 
+    const closeAllPositionSection =   <>
+        <CButton color="danger" onClick={() => setVisible(!visible)}>
+            Close All
+        </CButton>
+        <CCollapse visible={visible}>
+            <CCard className="mt-3">
+                <CCardBody>
+                    <CButton color="danger" className="float-start" onClick={handleCloseAllPosition}>
+                        <CIcon icon={cilDelete}/> Close All
+                    </CButton>
+                </CCardBody>
+            </CCard>
+        </CCollapse>
+    </>
+
     return (
         <CCard className="mb-4">
             <CCardHeader>
@@ -233,11 +249,10 @@ const Positions = () => {
                 <CButton color="primary" className="float-end" onClick={refreshPositions}>
                     <CIcon icon={cilReload}/>
                 </CButton>
-                <CButton color="danger" className="float-end" onClick={handleCloseAllPosition}>
-                    <CIcon icon={cilDelete}/>
-                </CButton>
+
             </CCardHeader>
             <CCardBody>
+                {closeAllPositionSection}
                 <CSmartTable
                     activePage={1}
                     columns={columns}
