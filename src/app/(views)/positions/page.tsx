@@ -42,7 +42,7 @@ const Positions = () => {
 
     const toaster = useRef();
 
-    const POSITION_REFRESH_RATE = 200000000;
+    const POSITION_REFRESH_RATE = 200000;
 
 
     const initializePositionSLTP = (positions: TradePosition[]) => {

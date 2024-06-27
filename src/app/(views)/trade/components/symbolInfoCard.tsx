@@ -107,7 +107,7 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                             <CTableRow>
                                 <CTableDataCell>{priceData.bidPrice}</CTableDataCell>
                                 <CTableDataCell>{priceData.askPrice}</CTableDataCell>
-                                <CTableDataCell>{priceData.spread}</CTableDataCell>
+                                <CTableDataCell>{priceData.spread} Pip(s)</CTableDataCell>
                             </CTableRow>
                         </CTableBody>
                     </CTable>
