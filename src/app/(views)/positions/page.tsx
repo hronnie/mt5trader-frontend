@@ -37,31 +37,19 @@ const Positions = () => {
     const [details, setDetails] = useState<number[]>([]);
     const [error, setError] = useState<Error | null>(null);
     const [toast, addToast] = useState(0);
-    const [positionSLTP, setPositionSLTP] = useState<{[key: number]: {sl: number, tp: number}}>({});
-    const [visible, setVisible] = useState(false)
+    const [visible, setVisible] = useState(false);
+    const [sl, setSl] = useState(0);
+    const [tp, setTp] = useState(0);
 
     const toaster = useRef();
 
     const POSITION_REFRESH_RATE = 200000;
-
-
-    const initializePositionSLTP = (positions: TradePosition[]) => {
-        const initialSLTP: {[key: number]: {sl: number, tp: number}} = {};
-        positions.forEach(position => {
-            initialSLTP[position.ticket] = {
-                sl: position.sl,
-                tp: position.tp,
-            };
-        });
-        setPositionSLTP(initialSLTP);
-    };
 
     const refreshPositions = async () => {
         addToast(0);
         try {
             const positions = await getPositionsService();
             setPositions(positions);
-            initializePositionSLTP(positions);
             setError(null);
         } catch (error: any) {
             setError(error);
@@ -134,7 +122,6 @@ const Positions = () => {
     const handleFlipPosition = (ticket: number) => handlePositionAction(flipPositionService, ticket, successFlipToast, errorFlipToast);
 
     const handleModifyPosition = async (ticket: number) => {
-        const { sl, tp } = positionSLTP[ticket] || { sl: 0, tp: 0 };
         try {
             const modifyResult = await modifyPositionsService(ticket, sl, tp);
             if (modifyResult?.comment == ORDER_REQUEST_SUCCESS_TEXT) {
@@ -173,15 +160,13 @@ const Positions = () => {
         return profit < 10;
     }
 
-    const handleChange = (ticket: number, field: 'sl' | 'tp') => (event: BaseSyntheticEvent) => {
+    const handleChange = (field: 'sl' | 'tp') => (event: BaseSyntheticEvent) => {
         const value = parseFloat(event.target.value);
-        setPositionSLTP(prev => ({
-            ...prev,
-            [ticket]: {
-                ...prev[ticket],
-                [field]: value
-            }
-        }));
+        if (field === "sl") {
+            setSl(value);
+        } else {
+            setTp(value);
+        }
     }
 
     if (error) return <div>Error: {error.message}</div>;
@@ -276,7 +261,6 @@ const Positions = () => {
                             )
                         },
                         details: (item: TradePosition) => {
-                            const { sl = item.slPrice, tp = item.tpPrice } = positionSLTP[item.ticket] || {};
                             // @ts-ignore
                             return (
                                 <CCollapse visible={details.includes(item.ticket)}>
@@ -289,14 +273,14 @@ const Positions = () => {
                                                 type="number"
                                                 step={0.0001}
                                                 value={sl}
-                                                onChange={handleChange(item.ticket, 'sl')}
+                                                onChange={handleChange('sl')}
                                                 style={{maxWidth: '150px', marginRight: '8px'}}
                                             />
                                                 <strong style={{marginTop: '10px', marginRight: '14px'}}>TP:</strong><CFormInput
                                                 type="number"
                                                 step={0.0001}
                                                 value={tp}
-                                                onChange={handleChange(item.ticket, 'tp')}
+                                                onChange={handleChange('tp')}
                                                 style={{maxWidth: '150px', marginRight: '8px'}}
                                             />
                                                 <CButton color="primary" size="sm" onClick={() => handleModifyPosition(item.ticket)}

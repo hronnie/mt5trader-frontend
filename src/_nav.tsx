@@ -2,7 +2,7 @@ import React, {ElementType} from 'react'
 import {
     cilChartLine,
     cilDrop,
-    cilGem,
+    cilGem, cilHistory,
     cilIndentIncrease,
     cilNewspaper,
     cilSettings,
@@ -47,6 +47,12 @@ const _nav = [
         name: 'Positions',
         href: '/positions',
         icon: <CIcon icon={cilIndentIncrease} customClassName="nav-icon"/>,
+    },
+    {
+        component: CNavItem,
+        name: 'History',
+        href: '/history',
+        icon: <CIcon icon={cilHistory} customClassName="nav-icon"/>,
     },
     {
         component: CNavItem,
