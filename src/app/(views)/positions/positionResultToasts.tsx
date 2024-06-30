@@ -62,7 +62,6 @@ export const errorFlipToast = (
 )
 
 
-
 export const successCloseAllToast = (
     <CToast color="success">
         <CToastBody>You successfully closed all position!</CToastBody>

@@ -2,6 +2,7 @@ import {CButton, CCol, CRow} from "@coreui/react-pro";
 import CIcon from "@coreui/icons-react";
 import {cilArrowThickToRight, cilCropRotate, cilDelete, cilElevator} from "@coreui/icons";
 import React from "react";
+
 export const actionButtonsSection = (
     ticket: number,
     profit: number,

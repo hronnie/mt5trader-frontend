@@ -12,7 +12,10 @@ import {
     CFormSwitch,
     CListGroup,
     CListGroupItem,
-    CRow, CToast, CToastBody, CToaster
+    CRow,
+    CToast,
+    CToastBody,
+    CToaster
 } from "@coreui/react-pro";
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
 import styles from "@/app/(views)/settings/settings.module.css";
@@ -21,7 +24,6 @@ import {Price} from "@/app/interfaces/priceInterface";
 import {ORDER_REQUEST_SUCCESS_TEXT, SETTINGS_LOCAL_STORAGE} from "@/app/common/constants";
 import tradeService from "@/services/tradeService";
 import {TradeResult} from "@/app/interfaces/tradeResult";
-import {errorCloseAllToast, successCloseAllToast} from "@/app/(views)/positions/positionResultToasts";
 
 interface ExecuteTradeCardProps {
     symbolName: string;
@@ -415,7 +417,8 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                                className={`mb-3 border-info`} style={{minWidth: '38rem'}}>
                             <CCardHeader>Order Creation Error</CCardHeader>
                             <CCardBody>
-                                There was an error during order creation. Please check in your client if the order was executed or not.
+                                There was an error during order creation. Please check in your client if the order was
+                                executed or not.
                             </CCardBody>
                         </CCard>
                     </div>
@@ -476,7 +479,7 @@ const ExecuteTradeCard: React.FC<ExecuteTradeCardProps> = ({symbolName}) => {
                             </CCardBody>
                         </CCard>
                     </div>)}
-                <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
+                <CToaster className="p-3" placement="top-end" push={toast} ref={toaster}/>
             </CCardBody>
         </CCard>
 

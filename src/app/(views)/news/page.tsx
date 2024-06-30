@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { getSymbolInfo } from '@/services/newsService';
+import React, {useEffect, useState} from 'react';
+import {getSymbolInfo} from '@/services/newsService';
 import News, {NewsInterface} from "@/app/common/components/News";
 import {CCard, CCardBody, CCardHeader} from "@coreui/react-pro";
 
@@ -38,7 +38,7 @@ const NewsPage: React.FC = () => {
                 <strong>News for all Symbol</strong>
             </CCardHeader>
             <CCardBody>
-                <News newsData={newsData} />
+                <News newsData={newsData}/>
             </CCardBody>
         </CCard>
     );

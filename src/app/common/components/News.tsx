@@ -1,13 +1,6 @@
 import React from "react";
-import {
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
-} from "@coreui/react-pro";
-import { format, parseISO } from "date-fns";
+import {CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow,} from "@coreui/react-pro";
+import {format, parseISO} from "date-fns";
 
 export interface NewsInterface {
     date: string;
@@ -35,16 +28,16 @@ const formatTime = (dateString: string) => {
 const getImpactStyles = (impact: string) => {
     switch (impact) {
         case "High":
-            return { backgroundColor: "#ef376e", color: "white" };
+            return {backgroundColor: "#ef376e", color: "white"};
         case "Medium":
-            return { backgroundColor: "#ffcc00", color: "#000000" };
+            return {backgroundColor: "#ffcc00", color: "#000000"};
         case "Low":
         default:
-            return { backgroundColor: "#f3f4f7", color: "#000000" };
+            return {backgroundColor: "#f3f4f7", color: "#000000"};
     }
 };
 
-const News: React.FC<NewsProps> = ({ newsData }) => {
+const News: React.FC<NewsProps> = ({newsData}) => {
     return !newsData || newsData.length === 0 ? (
         <div>I couldn't find any news for today</div>
     ) : (

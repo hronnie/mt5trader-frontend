@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
     CCard,
     CCardBody,
@@ -14,16 +14,16 @@ import {
     CTableHeaderCell,
     CTableRow,
 } from "@coreui/react-pro";
-import { getSymbolInfo } from "@/services/newsService";
-import { getPriceInfo } from "@/services/priceService";
-import { Price } from "@/app/interfaces/priceInterface";
+import {getSymbolInfo} from "@/services/newsService";
+import {getPriceInfo} from "@/services/priceService";
+import {Price} from "@/app/interfaces/priceInterface";
 import News, {NewsInterface} from "@/app/common/components/News";
 
 interface SymbolCardProps {
     symbolName: string;
 }
 
-const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
+const SymbolInfoCard: React.FC<SymbolCardProps> = ({symbolName}) => {
     const [newsData, setNewsData] = useState<NewsInterface[] | null>(null);
     const [priceData, setPriceData] = useState<Price | null>(null);
     const [loading, setLoading] = useState(true);
@@ -69,10 +69,10 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
                 <CCardBody>
                     <CCardTitle>News info</CCardTitle>
                     <CPlaceholder as="p" animation="wave">
-                        <CPlaceholder xs={12} />
-                        <CPlaceholder xs={12} />
-                        <CPlaceholder xs={12} />
-                        <CPlaceholder xs={12} />
+                        <CPlaceholder xs={12}/>
+                        <CPlaceholder xs={12}/>
+                        <CPlaceholder xs={12}/>
+                        <CPlaceholder xs={12}/>
                     </CPlaceholder>
                 </CCardBody>
             </CCard>
@@ -85,7 +85,7 @@ const SymbolInfoCard: React.FC<SymbolCardProps> = ({ symbolName }) => {
             <CCardHeader>{symbolName} Info</CCardHeader>
             <CCardBody>
                 <CCardTitle>News info</CCardTitle>
-                <News newsData={newsData} />
+                <News newsData={newsData}/>
                 <CCardTitle>Price info</CCardTitle>
                 {priceData && (
                     <CTable align="middle" small>

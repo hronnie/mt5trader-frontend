@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {
     CButton,
     CCard,
@@ -13,46 +13,49 @@ import {
     CInputGroupText,
     CListGroup,
     CListGroupItem,
-    CRow, CToast, CToastBody, CToaster, CToastHeader
+    CRow,
+    CToast,
+    CToastBody,
+    CToaster
 } from '@coreui/react-pro'
 import styles from './settings.module.css';
-import { SETTINGS_LOCAL_STORAGE } from '@/app/common/constants';
+import {SETTINGS_LOCAL_STORAGE} from '@/app/common/constants';
 
 const defaultFormData = {
     forex: {
-        EURUSD: { enabled: true, leverage: 100, error: '', pipSize: 0.0001 },
-        GBPUSD: { enabled: true, leverage: 100, error: '', pipSize: 0.0001 },
-        USDJPY: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        USDCAD: { enabled: false, leverage: 100, error: '', pipSize: 0.0001 },
-        USDCHF: { enabled: false, leverage: 100, error: '', pipSize: 0.0001 },
-        AUDUSD: { enabled: false, leverage: 100, error: '', pipSize: 0.0001 },
-        GBPJPY: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        AUDJPY: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        NZDUSD: { enabled: false, leverage: 100, error: '', pipSize: 0.0001 },
+        EURUSD: {enabled: true, leverage: 100, error: '', pipSize: 0.0001},
+        GBPUSD: {enabled: true, leverage: 100, error: '', pipSize: 0.0001},
+        USDJPY: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        USDCAD: {enabled: false, leverage: 100, error: '', pipSize: 0.0001},
+        USDCHF: {enabled: false, leverage: 100, error: '', pipSize: 0.0001},
+        AUDUSD: {enabled: false, leverage: 100, error: '', pipSize: 0.0001},
+        GBPJPY: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        AUDJPY: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        NZDUSD: {enabled: false, leverage: 100, error: '', pipSize: 0.0001},
     },
     indices: {
-        US30: { enabled: false, leverage: 100, error: '', pipSize: 1 },
-        US100: { enabled: false, leverage: 100, error: '', pipSize: 0.25 },
-        US500: { enabled: false, leverage: 100, error: '', pipSize: 0.25 },
-        US2000: { enabled: false, leverage: 100, error: '', pipSize: 0.1 },
-        GER40: { enabled: false, leverage: 100, error: '', pipSize: 0.5 },
-        UK100: { enabled: false, leverage: 100, error: '', pipSize: 0.5 },
-        EU50: { enabled: false, leverage: 100, error: '', pipSize: 1 },
-        JP225: { enabled: false, leverage: 100, error: '', pipSize: 1 },
-        HK50: { enabled: false, leverage: 100, error: '', pipSize: 1 },
-        AUS200: { enabled: false, leverage: 100, error: '', pipSize: 1 },
+        US30: {enabled: false, leverage: 100, error: '', pipSize: 1},
+        US100: {enabled: false, leverage: 100, error: '', pipSize: 0.25},
+        US500: {enabled: false, leverage: 100, error: '', pipSize: 0.25},
+        US2000: {enabled: false, leverage: 100, error: '', pipSize: 0.1},
+        GER40: {enabled: false, leverage: 100, error: '', pipSize: 0.5},
+        UK100: {enabled: false, leverage: 100, error: '', pipSize: 0.5},
+        EU50: {enabled: false, leverage: 100, error: '', pipSize: 1},
+        JP225: {enabled: false, leverage: 100, error: '', pipSize: 1},
+        HK50: {enabled: false, leverage: 100, error: '', pipSize: 1},
+        AUS200: {enabled: false, leverage: 100, error: '', pipSize: 1},
     },
     commodities: {
-        XAUUSD: { enabled: false, leverage: 100, error: '', pipSize: 0.1 },
-        XAGUSD: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        XPDUSD: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        XPTUSD: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        USOIL: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        UKOIL: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        COCOA: { enabled: false, leverage: 100, error: '', pipSize: 1 },
-        COFFEE: { enabled: false, leverage: 100, error: '', pipSize: 0.01 },
-        SOYBEAN: { enabled: false, leverage: 100, error: '', pipSize: 0.25 },
-        WHEAT: { enabled: false, leverage: 100, error: '', pipSize: 0.25 },
+        XAUUSD: {enabled: false, leverage: 100, error: '', pipSize: 0.1},
+        XAGUSD: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        XPDUSD: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        XPTUSD: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        USOIL: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        UKOIL: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        COCOA: {enabled: false, leverage: 100, error: '', pipSize: 1},
+        COFFEE: {enabled: false, leverage: 100, error: '', pipSize: 0.01},
+        SOYBEAN: {enabled: false, leverage: 100, error: '', pipSize: 0.25},
+        WHEAT: {enabled: false, leverage: 100, error: '', pipSize: 0.25},
     },
     risk: 1,
     spread: 1,
@@ -77,7 +80,9 @@ export default function Settings() {
         }
     }, []);
 
-    const handleChange = (category: string, name: string) => (event: { target: { type: string; checked: any; value: any; name: string; }; }) => {
+    const handleChange = (category: string, name: string) => (event: {
+        target: { type: string; checked: any; value: any; name: string; };
+    }) => {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
         const field = event.target.name;
         setFormData((prevFormData) => {
@@ -103,7 +108,7 @@ export default function Settings() {
     };
 
     const handleSave = () => {
-        const updatedFormData = { ...formData };
+        const updatedFormData = {...formData};
         Object.keys(updatedFormData).forEach(category => {
             Object.keys(updatedFormData[category]).forEach(symbol => {
                 if (updatedFormData[category][symbol].enabled && !updatedFormData[category][symbol].leverage) {
@@ -240,7 +245,8 @@ export default function Settings() {
                                                     className={styles.leverageInput}
                                                 />
                                                 {formData.commodities[key].error && (
-                                                    <div className={styles.error}>{formData.commodities[key].error}</div>
+                                                    <div
+                                                        className={styles.error}>{formData.commodities[key].error}</div>
                                                 )}
                                             </CCol>
                                         </CRow>
@@ -303,7 +309,7 @@ export default function Settings() {
             >
                 Save
             </CButton>
-            <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
+            <CToaster className="p-3" placement="top-end" push={toast} ref={toaster}/>
         </>
     )
 }

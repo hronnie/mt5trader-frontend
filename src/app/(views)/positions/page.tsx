@@ -1,31 +1,44 @@
 'use client'
 
 import {
+    CBadge,
+    CButton,
     CCard,
     CCardBody,
     CCardHeader,
-    CBadge,
-    CButton,
+    CCol,
     CCollapse,
+    CFormInput,
+    CRow,
     CSmartTable,
-    CToaster, CRow, CCol, CFormInput
+    CToaster
 } from '@coreui/react-pro';
 import React, {BaseSyntheticEvent, useEffect, useRef, useState} from "react";
 import {
-    breakEvenPositionService, closeAllPositionService,
-    closePositionsService, flipPositionService,
+    breakEvenPositionService,
+    closeAllPositionService,
+    closePositionsService,
+    flipPositionService,
     getPositionsService,
     hedgePositionService,
     modifyPositionsService,
 } from '@/services/positionsService';
-import { TradePosition } from '@/interfaces';
+import {TradePosition} from '@/interfaces';
 import CIcon from "@coreui/icons-react";
-import {cilArrowThickToRight, cilCode, cilCropRotate, cilDelete, cilElevator, cilReload} from "@coreui/icons";
+import {cilDelete, cilReload} from "@coreui/icons";
 import {
-    errorBreakEvenToast, errorCloseAllToast,
-    errorCloseToast, errorFlipToast, errorHedgeToast, errorModifyToast,
-    successBreakEvenToast, successCloseAllToast,
-    successCloseToast, successFlipToast, successHedgeToast, successModifyToast
+    errorBreakEvenToast,
+    errorCloseAllToast,
+    errorCloseToast,
+    errorFlipToast,
+    errorHedgeToast,
+    errorModifyToast,
+    successBreakEvenToast,
+    successCloseAllToast,
+    successCloseToast,
+    successFlipToast,
+    successHedgeToast,
+    successModifyToast
 } from "@/app/(views)/positions/positionResultToasts";
 import {ORDER_REQUEST_SUCCESS_TEXT} from "@/app/common/constants";
 import {formatNumber} from "@/app/common/helperMethods";
@@ -183,7 +196,7 @@ const Positions = () => {
 
     if (error) return <div>Error: {error.message}</div>;
 
-    const closeAllPositionSection =   <>
+    const closeAllPositionSection = <>
         <CButton color="danger" onClick={() => setVisible(!visible)}>
             Close All
         </CButton>
@@ -281,22 +294,30 @@ const Positions = () => {
                                         <p className="text-muted">Position opened at: {item.time}</p>
                                         <CRow className="mb-3 align-items-center">
                                             <CCol className="d-flex">
-                                                <strong style={{marginTop: '10px', marginRight: '14px'}}>SL:</strong><CFormInput
+                                                <strong style={{
+                                                    marginTop: '10px',
+                                                    marginRight: '14px'
+                                                }}>SL:</strong><CFormInput
                                                 type="number"
                                                 step={0.0001}
                                                 value={sl}
                                                 onChange={handleChange('sl')}
                                                 style={{maxWidth: '150px', marginRight: '8px'}}
                                             />
-                                                <strong style={{marginTop: '10px', marginRight: '14px'}}>TP:</strong><CFormInput
+                                                <strong style={{
+                                                    marginTop: '10px',
+                                                    marginRight: '14px'
+                                                }}>TP:</strong><CFormInput
                                                 type="number"
                                                 step={0.0001}
                                                 value={tp}
                                                 onChange={handleChange('tp')}
                                                 style={{maxWidth: '150px', marginRight: '8px'}}
                                             />
-                                                <CButton color="primary" size="sm" onClick={() => handleModifyPosition(item.ticket)}
-                                                         style={{cursor: "pointer"}} disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
+                                                <CButton color="primary" size="sm"
+                                                         onClick={() => handleModifyPosition(item.ticket)}
+                                                         style={{cursor: "pointer"}}
+                                                         disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
                                                 {/*<CButton color="primary" size="sm" onClick={() => handleRefreshPrice(item.symbol)}*/}
                                                 {/*         style={{cursor: "pointer", marginRight: "5px"}} >Get Current</CButton>*/}
                                             </CCol>
@@ -306,7 +327,7 @@ const Positions = () => {
                             )
                         },
                     }}
-                    sorterValue={{ column: 'time', state: 'asc' }}
+                    sorterValue={{column: 'time', state: 'asc'}}
                     tableProps={{
                         className: 'add-this-class',
                         responsive: true,
@@ -317,7 +338,7 @@ const Positions = () => {
                         className: 'align-middle'
                     }}
                 />
-                <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
+                <CToaster className="p-3" placement="top-end" push={toast} ref={toaster}/>
             </CCardBody>
         </CCard>
     );

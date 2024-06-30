@@ -1,21 +1,11 @@
 'use client'
 
-import {
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CBadge,
-    CButton,
-    CCollapse,
-    CSmartTable,
-    CToaster, CRow, CCol, CFormInput
-} from '@coreui/react-pro';
+import {CBadge, CButton, CCard, CCardBody, CCardHeader, CSmartTable} from '@coreui/react-pro';
 import React, {useEffect, useState} from "react";
-import { TradeHistory } from '@/interfaces';
+import {TradeHistory} from '@/interfaces';
 import CIcon from "@coreui/icons-react";
 import {cilReload} from "@coreui/icons";
 import {formatNumber, formatTime} from "@/app/common/helperMethods";
-import {positionTableColumns} from "@/app/(views)/positions/positionTableColumn";
 import {getAllHistoryService} from "@/services/historyService";
 import {historyTableColumns} from "@/app/(views)/history/historyTableColumn";
 
@@ -108,7 +98,7 @@ const History = () => {
                             <td>{formatNumber(item.fee, 2)}</td>
                         ),
                     }}
-                    sorterValue={{ column: 'time', state: 'desc' }}
+                    sorterValue={{column: 'time', state: 'desc'}}
                     tableProps={{
                         className: 'add-this-class',
                         responsive: true,
