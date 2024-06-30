@@ -108,7 +108,7 @@ const History = () => {
                             <td>{formatNumber(item.fee, 2)}</td>
                         ),
                     }}
-                    sorterValue={{ column: 'time', state: 'asc' }}
+                    sorterValue={{ column: 'time', state: 'desc' }}
                     tableProps={{
                         className: 'add-this-class',
                         responsive: true,
