@@ -34,16 +34,17 @@ import {actionButtonsSection} from "@/app/(views)/positions/components/actionBut
 
 const Positions = () => {
     const [positions, setPositions] = useState<TradePosition[]>([]);
-    const [details, setDetails] = useState<number[]>([]);
+    const [tickets, setTickets] = useState<number[]>([]);
     const [error, setError] = useState<Error | null>(null);
     const [toast, addToast] = useState(0);
     const [visible, setVisible] = useState(false);
     const [sl, setSl] = useState(0);
     const [tp, setTp] = useState(0);
+    const [positionDetailsOpen, setPositionDetailsOpen] = useState<number[]>([]);
 
     const toaster = useRef();
 
-    const POSITION_REFRESH_RATE = 200000;
+    const POSITION_REFRESH_RATE = 2000;
 
     const refreshPositions = async () => {
         addToast(0);
@@ -77,15 +78,24 @@ const Positions = () => {
     }
 
 
-    const toggleDetails = (index: number) => {
-        const position = details.indexOf(index);
-        let newDetails = details.slice();
-        if (position !== -1) {
-            newDetails.splice(position, 1);
+    const toggleDetails = (selectedTicket: number) => {
+        if (!positionDetailsOpen.includes(selectedTicket)) {
+            const selectedPosition = positions.filter(item => item.ticket === selectedTicket)[0];
+            setSl(selectedPosition?.sl);
+            setTp(selectedPosition?.tp);
+            setPositionDetailsOpen([...positionDetailsOpen, selectedTicket]);
         } else {
-            newDetails = [...details, index];
+            const newPositionDetailsOpen = positionDetailsOpen.filter(item => item !== selectedTicket);
+            setPositionDetailsOpen(newPositionDetailsOpen);
         }
-        setDetails(newDetails);
+        const positionIndex = tickets.indexOf(selectedTicket);
+        let newDetails = tickets.slice();
+        if (positionIndex !== -1) {
+            newDetails.splice(positionIndex, 1);
+        } else {
+            newDetails = [...tickets, selectedTicket];
+        }
+        setTickets(newDetails);
     }
 
     const handleModifyDisabled = (sl: number, tp: number): boolean => {
@@ -168,6 +178,8 @@ const Positions = () => {
             setTp(value);
         }
     }
+
+    // const handleRefreshPrice = ()
 
     if (error) return <div>Error: {error.message}</div>;
 
@@ -255,7 +267,7 @@ const Positions = () => {
                                             toggleDetails(item.ticket)
                                         }}
                                     >
-                                        {details.includes(item.ticket) ? 'Hide' : 'Modify'}
+                                        {tickets.includes(item.ticket) ? 'Hide' : 'Modify'}
                                     </CButton>
                                 </td>
                             )
@@ -263,7 +275,7 @@ const Positions = () => {
                         details: (item: TradePosition) => {
                             // @ts-ignore
                             return (
-                                <CCollapse visible={details.includes(item.ticket)}>
+                                <CCollapse visible={tickets.includes(item.ticket)}>
                                     <CCardBody className="p-3">
                                         <h4>{item.symbol}</h4>
                                         <p className="text-muted">Position opened at: {item.time}</p>
@@ -285,6 +297,8 @@ const Positions = () => {
                                             />
                                                 <CButton color="primary" size="sm" onClick={() => handleModifyPosition(item.ticket)}
                                                          style={{cursor: "pointer"}} disabled={handleModifyDisabled(sl, tp)}>Modify</CButton>
+                                                {/*<CButton color="primary" size="sm" onClick={() => handleRefreshPrice(item.symbol)}*/}
+                                                {/*         style={{cursor: "pointer", marginRight: "5px"}} >Get Current</CButton>*/}
                                             </CCol>
                                         </CRow>
                                     </CCardBody>
