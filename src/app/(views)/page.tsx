@@ -8,6 +8,9 @@ import {getAllHistoryService} from "@/services/historyService";
 import {TradeHistory} from "@/app/interfaces/historyInterface";
 import {formatNumber} from "@/app/common/helperMethods";
 
+import { mean, standardDeviation } from 'simple-statistics';
+
+
 const Dashboard = () => {
 
     const [history, setHistory] = useState<TradeHistory[]>([]);
@@ -16,7 +19,8 @@ const Dashboard = () => {
         noOfTrades: 0,
         noOfWins: 0,
         noOfLoss: 0,
-        balanceDataPoints: [],
+        balanceLabels: [],
+        balanceData: [],
         allProfit: 0,
         allLoss: 0,
         monthlyProfit: 0,
@@ -24,7 +28,8 @@ const Dashboard = () => {
         winRate: 0,
         profitFactor: 0,
         sharpRatio: 0,
-        symbolDataPoints: []
+        symbolLabels: [],
+        symbolData: []
     })
     const [error, setError] = useState<Error | null>(null);
 
@@ -58,34 +63,45 @@ const Dashboard = () => {
         return tradeArray.reduce((prev, next) => prev + next.profit + next.commission + next.swap + next.fee, 0)
     }
 
-    const calculateSharpeRatio = (tradeHistory: TradeHistory[]) => {
-        const riskFreeRate = 0.06;
-        // Step 1: Calculate daily returns
-        const dailyReturns = tradeHistory.map((trade, index) => {
-            if (index === 0) return 0; // No return on the first entry
+    const calculateSharpeRatio = (returns: number[], riskFreeRate = 0) => {
+        const meanReturn = mean(returns);
+        const stdDevReturn = standardDeviation(returns);
+        return (meanReturn - riskFreeRate) / stdDevReturn;
+    };
 
-            const previousTrade = tradeHistory[index - 1];
+    const symbolCount = (tradeHistory: TradeHistory[]) =>  {
+        const symbolCount = {};
 
-            // Calculate the total for the current and previous trade
-            const previousTotal = previousTrade.profit + previousTrade.commission + previousTrade.swap + previousTrade.fee;
-            const currentTotal = trade.profit + trade.commission + trade.swap + trade.fee;
+        // Count occurrences of each symbol
+        tradeHistory.forEach(trade => {
+            if (symbolCount[trade.symbol]) {
+                symbolCount[trade.symbol]++;
+            } else {
+                symbolCount[trade.symbol] = 1;
+            }
+        });
 
-            // Return the daily return
-            return (currentTotal - previousTotal) / Math.abs(previousTotal);
-        }).filter(returnValue => !isNaN(returnValue) && isFinite(returnValue)); // Filter out NaN and Infinity values
+        // Prepare labels and data for the chart
+        const symbolLabels = Object.keys(symbolCount);
+        const symbolData = symbolLabels.map(symbol => symbolCount[symbol]);
 
-        // Step 2: Calculate the average daily return
-        const averageReturn = dailyReturns.reduce((acc, curr) => acc + curr, 0) / dailyReturns.length;
-
-        // Step 3: Calculate the standard deviation of daily returns
-        const variance = dailyReturns.reduce((acc, curr) => acc + Math.pow(curr - averageReturn, 2), 0) / dailyReturns.length;
-        const standardDeviation = Math.sqrt(variance);
-
-        // Step 4: Calculate the Sharpe ratio
-        const sharpeRatio = (averageReturn - riskFreeRate) / standardDeviation;
-
-        return formatNumber(sharpeRatio, 2);
+        return { symbolLabels, symbolData };
     }
+
+    const calculateCumulativeBalance = (tradeHistory: TradeHistory[]) => {
+        let cumulativeBalance = 0;
+        const balanceLabels = [];
+        const balanceData = [];
+
+        tradeHistory.forEach(trade => {
+            cumulativeBalance += trade.profit + trade.commission + trade.swap + trade.fee;
+            balanceLabels.push(new Date(trade.time * 1000).toLocaleDateString());
+            balanceData.push(cumulativeBalance);
+        });
+
+        return { balanceLabels, balanceData };
+    }
+
 
     const calculateDashboardStat = () => {
         const historyWithoutDeposit = history.filter(item => item?.symbol !== "");
@@ -105,10 +121,12 @@ const Dashboard = () => {
         const allLoss = getTradeProfitLossResult(lossArray);
         const monthlyProfit = getTradeProfitLossResult(winArrayMonth);
         const monthlyLoss = getTradeProfitLossResult(lossArrayMonth);
-        debugger;
         const winRate = (noOfWins/ noOfTrades) * 100;
         const profitFactor = allProfit / allLoss;
-        const sharpRatio = calculateSharpeRatio(historyWithoutDeposit);
+        const returns = historyWithoutDeposit.map(next => next.profit + next.commission + next.swap + next.fee);
+        const sharpRatio = calculateSharpeRatio(returns);
+        const { symbolLabels, symbolData } = symbolCount(historyWithoutDeposit);
+        const { balanceLabels, balanceData } = calculateCumulativeBalance(historyWithoutDeposit);
 
         setDashBoardStat({
             ...dashBoardStat,
@@ -123,8 +141,11 @@ const Dashboard = () => {
             monthlyLoss: formatNumber(monthlyLoss, 2),
             winRate: formatNumber(winRate, 2),
             profitFactor: formatNumber(profitFactor, 2),
-            sharpRatio,
-            symbolDataPoints: []
+            sharpRatio: formatNumber(sharpRatio, 2),
+            symbolLabels,
+            symbolData,
+            balanceLabels,
+            balanceData
         })
     }
 
@@ -184,7 +205,7 @@ const Dashboard = () => {
                             <CChart
                                 type="line"
                                 data={{
-                                    labels: ["January", "February", "March", "April", "May", "June", "July"],
+                                    labels: dashBoardStat.balanceLabels,
                                     datasets: [
                                         {
                                             label: "Balance",
@@ -192,7 +213,7 @@ const Dashboard = () => {
                                             borderColor: "rgba(220, 220, 220, 1)",
                                             pointBackgroundColor: "rgba(220, 220, 220, 1)",
                                             pointBorderColor: "#fff",
-                                            data: [40, 20, 12, 39, 10, 40, 39, 80, 40]
+                                            data: dashBoardStat.balanceData
                                         },
 
                                     ],
@@ -347,11 +368,11 @@ const Dashboard = () => {
                             <CChart
                                 type="doughnut"
                                 data={{
-                                    labels: ['VueJs', 'EmberJs', 'ReactJs', 'AngularJs'],
+                                    labels: dashBoardStat.symbolLabels,
                                     datasets: [
                                         {
                                             backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
-                                            data: [40, 20, 80, 10],
+                                            data: dashBoardStat.symbolData,
                                         },
                                     ],
                                 }}
