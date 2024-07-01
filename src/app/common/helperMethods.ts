@@ -2,7 +2,7 @@ export const formatNumber = (num: number, digits = 5) => {
     if (!num) {
         return 0;
     }
-    return num.toFixed(digits);
+    return parseFloat(num.toFixed(digits));
 }
 
 export const formatTime = (timestamp: number) => {
